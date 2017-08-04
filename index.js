@@ -66,6 +66,7 @@ app.post('/webhook/', function (req, res) {
 					askHowMuch(sender)
 					continue
 				}
+				console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', text)
   	    sendTextMessage(sender, "Postback received: "+text.substring(0, 200), token)
   	    continue
       }
