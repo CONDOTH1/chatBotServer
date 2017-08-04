@@ -4,6 +4,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const app = express()
+require('dotenv').config()
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -15,7 +16,7 @@ app.use(bodyParser.json())
 
 // Index route
 app.get('/', function (req, res) {
-	res.send('Hello world, I am a chat bot')
+	res.send(process.env.FACEBOOK_CHALLENGE)
 })
 
 // for Facebook verification
