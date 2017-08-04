@@ -3,6 +3,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
+const rp = require('request-promise');
 const app = express()
 require('dotenv').config()
 
@@ -32,6 +33,8 @@ app.listen(app.get('port'), function() {
 	console.log('running on port', app.get('port'))
 })
 
+let rfqObject = {}
+
 app.post('/webhook/', function (req, res) {
     let messaging_events = req.body.entry[0].messaging
     for (let i = 0; i < messaging_events.length; i++) {
@@ -43,8 +46,16 @@ app.post('/webhook/', function (req, res) {
   		    sendGenericMessage(sender)
   		    continue
 				}
-				if(text.includes('loan')){
-					askHowMuch(sender)
+				if(text.includes('£')){
+					rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''))
+					askForHowLong(sender)
+					continue
+				}
+				const termArray = ['years', 'days' , 'months']
+				if(termArray.includes(text.split(' ')[1])){
+					rfqObject.termPeriod = text.split(' ')[1]
+					rfqObject.loanTerm = parseInt(text.split(' ')[0])
+					sendRFQ(sender)
 					continue
 				}
   	    sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
@@ -142,4 +153,59 @@ function askHowMuch(sender){
 		    console.log('Error: ', response.body.error)
 	    }
     })
+}
+
+function askForHowLong(sender){
+		let messageData = {
+			text: `For How Long? ${rfqObject.loanAmount}`
+		}
+    request({
+	    url: 'https://graph.facebook.com/v2.6/me/messages',
+	    qs: {access_token:token},
+	    method: 'POST',
+	    json: {
+		    recipient: {id:sender},
+		    message: messageData,
+	    }
+    }, function(error, response, body) {
+	    if (error) {
+		    console.log('Error sending messages: ', error)
+	    } else if (response.body.error) {
+		    console.log('Error: ', response.body.error)
+	    }
+    })
+}
+
+function sendRFQ(sender){
+		console.log('+_+_+_+_+_+_+_+_+_+_+_+_+_+__+_+_+_+_+_+_+_+_+_++_+_+_+_', rfqObject)
+
+  const params = {
+    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
+    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
+    method: 'POST',
+    body: rfqObject,
+    json: true
+	};
+	
+	  return rp(params)
+    .then((result) => {
+			let messageData = {
+				text: 'Your loan request has been sent!'
+			}
+    	request({
+	  	  url: 'https://graph.facebook.com/v2.6/me/messages',
+	  	  qs: {access_token:token},
+	  	  method: 'POST',
+	  	  json: {
+			    recipient: {id:sender},
+			    message: messageData,
+	  	  }
+    	}, function(error, response, body) {
+	  	  if (error) {
+			    console.log('Error sending messages: ', error)
+	  	  } else if (response.body.error) {
+			    console.log('Error: ', response.body.error)
+	  	  }
+    	})
+		})
 }
