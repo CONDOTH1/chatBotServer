@@ -61,8 +61,9 @@ app.post('/webhook/', function (req, res) {
   	    sendTextMessage(sender, "Text received, echo: " + text.substring(0, 200))
 			}
       if (event.postback) {
-				let text = JSON.stringify(event.postback)
-				if(text === "How Much Would You Like?"){
+				const text = JSON.stringify(event.postback)
+				const parsedTextObject = JSON.parse(text) 
+				if(parsedTextObject.payload === "How Much Would You Like?"){
 					askHowMuch(sender)
 					continue
 				}
@@ -158,7 +159,7 @@ function askHowMuch(sender){
 
 function askForHowLong(sender){
 		let messageData = {
-			text: `For How Long? ${rfqObject.loanAmount}`
+			text: `For How Long?`
 		}
     request({
 	    url: 'https://graph.facebook.com/v2.6/me/messages',
