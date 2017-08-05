@@ -131,7 +131,6 @@ function getQuotesForRfq(sender, rfqNumber) {
   };
   return rp(params)
   .then((results) => {
-    console.log('||||||||||_____|||||||||', results.quotes[0]);
     const listTemplate = results.quotes.map(quote => ({
       title: `${quote.quotePayload.providerName} can offer a loan of ${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
       subtitle: `Valid For ${ta.ago(new Date(quote.timeToLive).toString())}`,
@@ -160,6 +159,23 @@ function getQuotesForRfq(sender, rfqNumber) {
   });
 }
 
+function acceptQuote(sender, quoteNumber) {
+  const params = {
+    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
+    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/quotes',
+    method: 'PUT',
+    body: { quoteNumber, status: 'accept' },
+    json: true
+  };
+
+  return rp(params)
+    .then(() => {
+      const messageData = {
+        text: 'You Have Accepted The Quote!'
+      };
+      sendRequest(sender, messageData);
+    });
+}
 module.exports = {
   sendTextMessage,
   sendWelcomeMenu,
@@ -167,5 +183,6 @@ module.exports = {
   askForHowLong,
   sendRFQ,
   getRFQS,
-  getQuotesForRfq
+  getQuotesForRfq,
+  acceptQuote
 };

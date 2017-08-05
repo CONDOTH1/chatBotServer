@@ -80,7 +80,8 @@ app.post('/webhook/', (req, res) => {
   	    continue;
   }
       if (parsedTextObject.payload.includes('QUOTE:')) {
-        botMessages.sendTextMessage(sender, 'You Quote Will Be Accepted Once Implemented');
+        const quoteNumber = parsedTextObject.payload.split(' ')[1];
+        botMessages.acceptQuote(sender, quoteNumber);
       }
   	    botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
   	    continue;
