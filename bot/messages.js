@@ -132,8 +132,8 @@ function getQuotesForRfq(sender, rfqNumber) {
   return rp(params)
   .then((results) => {
     const listTemplate = results.quotes.map(quote => ({
-      title: `${quote.quotePayload.providerName} can offer a loan of ${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
-      subtitle: `Valid For ${ta.ago(new Date(quote.timeToLive).toString())}`,
+      title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
+      subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
       buttons: quote.status === 'accept' ? [
         {
           type: 'postback',

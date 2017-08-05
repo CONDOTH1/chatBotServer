@@ -1,10 +1,8 @@
-'use strict';
+/* eslint no-continue: "off" */
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const request = require('request');
-const rp = require('request-promise');
-const ta = require('time-ago')();
+
 const app = express();
 const botMessages = require('./bot/messages.js');
 require('dotenv').config();
@@ -38,8 +36,8 @@ app.listen(app.get('port'), () => {
 const rfqObject = {};
 
 app.post('/webhook/', (req, res) => {
-  const messaging_events = req.body.entry[0].messaging;
-  for (let i = 0; i < messaging_events.length; i++) {
+  const messagingEvents = req.body.entry[0].messaging;
+  for (let i = 0; i < messagingEvents.length; i++) {
     const event = req.body.entry[0].messaging[i];
     const sender = event.sender.id;
 
@@ -50,14 +48,14 @@ app.post('/webhook/', (req, res) => {
         continue;
       }
       if (text.includes('£')) {
-        rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''));
+        rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''), 10);
         botMessages.askForHowLong(sender);
         continue;
       }
       const termArray = ['years', 'days', 'months'];
       if (termArray.includes(text.split(' ')[1])) {
         rfqObject.termPeriod = text.split(' ')[1];
-        rfqObject.loanTerm = parseInt(text.split(' ')[0]);
+        rfqObject.loanTerm = parseInt(text.split(' ')[0], 10);
         botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
@@ -88,7 +86,6 @@ app.post('/webhook/', (req, res) => {
       if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
         botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
         const rfqNumber = parsedTextObject.payload.split(': ')[1];
-        console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', rfqNumber);
         botMessages.getQuotesForRfq(sender, rfqNumber);
         continue;
       }
