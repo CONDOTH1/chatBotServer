@@ -60,7 +60,7 @@ app.post('/webhook/', (req, res) => {
         sendRFQ(sender);
         continue;
       }
-  	    sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
+  	    botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
     }
     if (event.postback) {
       const text = JSON.stringify(event.postback);
@@ -70,16 +70,16 @@ app.post('/webhook/', (req, res) => {
         continue;
       }
       if (parsedTextObject.payload === 'RFQS GET') {
-        getRFQS(sender);
+        botMessages.getRFQS(sender);
         continue;
 	  }
 	  if (parsedTextObject.payload.includes('RFQ:')) {
     	console.log('OOLOLOLOLOLOLOLOLOLOLOLOLOLOLOL');
-  	    sendTextMessage(sender, 'Message Received', token);
+  	    botMessages.sendTextMessage(sender, 'Message Received', token);
   	    continue;
 	  }
       console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', text);
-  	    sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`, token);
+  	    botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
   	    continue;
     }
   }
@@ -87,29 +87,6 @@ app.post('/webhook/', (req, res) => {
 });
 
 const token = process.env.PAGE_ACCESS_TOKEN;
-
-// function sendRequest(sender, messageData) {
-//   request({
-//     url: 'https://graph.facebook.com/v2.6/me/messages',
-//     qs: { access_token: token },
-//     method: 'POST',
-//     json: {
-//       recipient: { id: sender },
-//       message: messageData
-//     }
-//   }, (error, response, body) => {
-//     if (error) {
-//       console.log('Error sending messages: ', error);
-//     } else if (response.body.error) {
-//       console.log('Error: ', response.body.error);
-//     }
-//   });
-// }
-
-function sendTextMessage(sender, text) {
-  const messageData = { text };
-  botMessages.sendRequest(sender, messageData);
-}
 
 function sendGenericMessage(sender) {
   const messageData = {
@@ -227,63 +204,3 @@ function sendRFQ(sender) {
     });
 }
 
-function getRFQS(sender) {
-  const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
-    method: 'GET'
-  };
-
-  return rp(params)
-	.then((results) => {
-  const parsedResult = JSON.parse(results);
-  const rfqsArray = parsedResult.rfqs;
-  const requiredInformation = rfqsArray.map(rfq => ({
-		  amount: rfq.payload.loanAmount,
-		  term: `${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
-		  rfqNumber: rfq.rfqNumber,
-		  created: rfq.createdTimeStamp
-	  }));
-
-  const listTemplate = requiredInformation.map(rfqData => ({
-    title: `Your Loan Request for £${rfqData.amount}`,
-    subtitle: `Created ${ta.ago(rfqData.created)}`,
-    buttons: [
-      {
-        type: 'postback',
-        title: `Your Loan for ${rfqData.amount} over ${rfqData.term} created on ${rfqData.created}`,
-        payload: `RFQ: ${rfqData.rfqNumber}`
-      }
-    ]
-  }));
-
-  const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
-
-  const messageData = {
-	 attachment: {
-   type: 'template',
-   payload: {
-     template_type: 'list',
-     top_element_style: 'compact',
-     elements: listGroupOfFour
-   }
- }
-  };
-
-    	request({
-	  	  url: 'https://graph.facebook.com/v2.6/me/messages',
-	  	  qs: { access_token: token },
-	  	  method: 'POST',
-	  	  json: {
-			    recipient: { id: sender },
-			    message: messageData
-	  	  }
-    	}, (error, response, body) => {
-	  	  if (error) {
-			    console.log('Error sending messages: ', error);
-	  	  } else if (response.body.error) {
-			    console.log('Error: ', response.body.error);
-	  	  }
-    	});
-});
-}
