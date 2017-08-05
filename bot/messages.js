@@ -134,7 +134,13 @@ function getQuotesForRfq(sender, rfqNumber) {
     const listTemplate = results.quotes.map(quote => ({
       title: `${quote.quotePayload.providerName} can offer a loan of ${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
       subtitle: `Valid For ${ta.ago(new Date(quote.timeToLive).toString())}`,
-      buttons: [
+      buttons: quote.status === 'accept' ? [
+        {
+          type: 'postback',
+          title: 'Offer Accepted',
+          payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
+        }
+      ] : [
         {
           type: 'postback',
           title: 'Accept Offer',

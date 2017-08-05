@@ -42,11 +42,12 @@ app.post('/webhook/', (req, res) => {
   for (let i = 0; i < messaging_events.length; i++) {
     const event = req.body.entry[0].messaging[i];
     const sender = event.sender.id;
+
     if (event.message && event.message.text) {
-  	    const text = event.message.text;
-  	    if (text === 'Generic') {
-  		    botMessages.sendWelcomeMenu(sender);
-  		    continue;
+      const text = event.message.text;
+      if (text === 'Generic') {
+        botMessages.sendWelcomeMenu(sender);
+        continue;
       }
       if (text.includes('£')) {
         rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''));
@@ -60,8 +61,9 @@ app.post('/webhook/', (req, res) => {
         botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
-  	    botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
+      botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
     }
+
     if (event.postback) {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
@@ -72,19 +74,26 @@ app.post('/webhook/', (req, res) => {
       if (parsedTextObject.payload === 'RFQS GET') {
         botMessages.getRFQS(sender);
         continue;
-	  }
-	  if (parsedTextObject.payload.includes('RFQ:')) {
-    const rfqNumber = parsedTextObject.payload.split(' ')[1];
-    console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', rfqNumber);
-  	    botMessages.getQuotesForRfq(sender, rfqNumber);
-  	    continue;
-  }
+      }
+      if (parsedTextObject.payload.includes('RFQ:')) {
+        const rfqNumber = parsedTextObject.payload.split(' ')[1];
+        botMessages.getQuotesForRfq(sender, rfqNumber);
+        continue;
+      }
       if (parsedTextObject.payload.includes('QUOTE:')) {
         const quoteNumber = parsedTextObject.payload.split(' ')[1];
         botMessages.acceptQuote(sender, quoteNumber);
+        continue;
       }
-  	    botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
-  	    continue;
+      if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
+        botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
+        const rfqNumber = parsedTextObject.payload.split(': ')[1];
+        console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', rfqNumber);
+        botMessages.getQuotesForRfq(sender, rfqNumber);
+        continue;
+      }
+      botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
+      continue;
     }
   }
   res.sendStatus(200);
