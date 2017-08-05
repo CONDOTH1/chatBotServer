@@ -121,11 +121,51 @@ function getRFQS(sender) {
   });
 }
 
+function getQuotesForRfq(sender, rfqNumber) {
+  const params = {
+    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
+    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/quotes',
+    method: 'POST',
+    body: { rfqNumber },
+    json: true
+  };
+  return rp(params)
+  .then((results) => {
+    console.log('||||||||||_____|||||||||', results.quotes[0]);
+    const listTemplate = results.quotes.map(quote => ({
+      title: `${quote.quotePayload.providerName} can offer a loan of ${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
+      subtitle: `Valid For ${ta.ago(new Date(quote.timeToLive).toString())}`,
+      buttons: [
+        {
+          type: 'postback',
+          title: 'Accept Offer',
+          payload: `QUOTE: ${quote.quoteNumber}`
+        }
+      ]
+    }));
+
+    const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
+
+    const messageData = {
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'list',
+          top_element_style: 'compact',
+          elements: listGroupOfFour
+        }
+      }
+    };
+    sendRequest(sender, messageData);
+  });
+}
+
 module.exports = {
   sendTextMessage,
   sendWelcomeMenu,
   askHowMuch,
   askForHowLong,
   sendRFQ,
-  getRFQS
+  getRFQS,
+  getQuotesForRfq
 };

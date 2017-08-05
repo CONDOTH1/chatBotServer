@@ -74,11 +74,14 @@ app.post('/webhook/', (req, res) => {
         continue;
 	  }
 	  if (parsedTextObject.payload.includes('RFQ:')) {
-    	console.log('OOLOLOLOLOLOLOLOLOLOLOLOLOLOLOL');
-  	    botMessages.sendTextMessage(sender, 'Message Received', token);
+    const rfqNumber = parsedTextObject.payload.split(' ')[1];
+    console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', rfqNumber);
+  	    botMessages.getQuotesForRfq(sender, rfqNumber);
   	    continue;
-	  }
-      console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{}{', text);
+  }
+      if (parsedTextObject.payload.includes('QUOTE:')) {
+        botMessages.sendTextMessage(sender, 'You Quote Will Be Accepted Once Implemented');
+      }
   	    botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
   	    continue;
     }
