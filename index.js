@@ -59,7 +59,18 @@ app.post('/webhook/', (req, res) => {
         botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
+      if (text.includes('Accept') || text.includes('Reject')) {
+        const quoteNumber = event.message.quick_reply.payload.split(':');
+        botMessages.acceptRejectQuote(sender, quoteNumber);
+        continue;
+      }
+      if (text.includes('Return To Quotes')) {
+        const rfqNumber = event.message.quick_reply.payload.split(':')[1];
+        botMessages.getQuotesForRfq(sender, rfqNumber);
+        continue;
+      }
       botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
+      continue;
     }
 
     if (event.postback) {
@@ -81,20 +92,14 @@ app.post('/webhook/', (req, res) => {
       if (parsedTextObject.payload.includes('VIEW QUOTE:')) {
         const quote = parsedTextObject.payload.split('QUOTE: ')[1];
         const quoteDetails = quote.split('::');
-        botMessages.sendTextMessage(sender, quoteDetails[0]);
-        botMessages.acceptRejectButtons(sender, quoteDetails[1]);
+        // botMessages.sendTextMessage(sender, quoteDetails[0]);
+        if (quoteDetails[2] === 'pending') {
+          botMessages.acceptRejectButtons(sender, quoteDetails[0], quoteDetails[1]);
+        } else {
+          botMessages.returnToQuotesButton(sender, quoteDetails[0], quoteDetails[3]);
+        }
         continue;
       }
-      if (parsedTextObject.payload.includes('accept:') || parsedTextObject.payload.includes('reject:')) {
-        const payload = parsedTextObject.payload.split(':');
-        botMessages.acceptRejectQuote(sender, payload);
-      }
-      // if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
-      //   botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
-      //   const rfqNumber = parsedTextObject.payload.split(': ')[1];
-      //   botMessages.getQuotesForRfq(sender, rfqNumber);
-      //   continue;
-      // }
       botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
       continue;
     }

@@ -129,6 +129,7 @@ function getQuotesForRfq(sender, rfqNumber) {
     body: { rfqNumber },
     json: true
   };
+
   return rp(params)
   .then((results) => {
     const listTemplate = results.quotes.map(quote => ({
@@ -138,14 +139,14 @@ function getQuotesForRfq(sender, rfqNumber) {
         {
           type: 'postback',
           title: `View: ${quote.status}ed`,
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber} `
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
         }
       ] : [
         {
           type: 'postback',
           title: 'View',
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber} `
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `VIEW QUOTE: ${quote.quoteNumber}`
         }
       ]
@@ -176,18 +177,19 @@ function acceptRejectQuote(sender, payloadArray) {
     json: true
   };
 
+  console.log('+_+_+_+_+_+_+__+__+_+_+_+_+_', params);
   return rp(params)
     .then(() => {
       const messageData = {
-        text: `You Have ${payloadArray[1]}ed The Offer!`
+        text: `You Have ${payloadArray[0]}ed The Offer!`
       };
       sendRequest(sender, messageData);
     });
 }
 
-function acceptRejectButtons(sender, quoteNumber) {
+function acceptRejectButtons(sender, quoteDetails, quoteNumber) {
   const messageData = {
-    text: 'Options:',
+    text: quoteDetails,
     quick_replies: [
       {
         content_type: 'text',
@@ -199,11 +201,25 @@ function acceptRejectButtons(sender, quoteNumber) {
         content_type: 'text',
         title: 'Accept',
         payload: `accept:${quoteNumber}`,
-        image_url: 'http://petersfantastichats.com/img/green.png'
+        image_url: 'http://www.colorcombos.com/images/colors/00FF00.png'
       }
     ]
   };
-  console.log('{}{}{}{}{}{}{}{}{}{}{}{{}', messageData);
+  sendRequest(sender, messageData);
+}
+
+function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
+  const messageData = {
+    text: quoteDetails,
+    quick_replies: [
+      {
+        content_type: 'text',
+        title: 'Return To Quotes',
+        payload: `RETURN TO QUOTES:${rfqNumber}`,
+        image_url: 'http://www.colorcombos.com/images/colors/000084.png'
+      }
+    ]
+  };
   sendRequest(sender, messageData);
 }
 
@@ -216,5 +232,6 @@ module.exports = {
   getRFQS,
   getQuotesForRfq,
   acceptRejectQuote,
-  acceptRejectButtons
+  acceptRejectButtons,
+  returnToQuotesButton
 };
