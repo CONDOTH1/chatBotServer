@@ -45,19 +45,19 @@ app.post('/webhook/', (req, res) => {
     if (event.message && event.message.text) {
   	    const text = event.message.text;
   	    if (text === 'Generic') {
-  		    sendGenericMessage(sender);
+  		    botMessages.sendWelcomeMenu(sender);
   		    continue;
       }
       if (text.includes('£')) {
         rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''));
-        askForHowLong(sender);
+        botMessages.askForHowLong(sender);
         continue;
       }
       const termArray = ['years', 'days', 'months'];
       if (termArray.includes(text.split(' ')[1])) {
         rfqObject.termPeriod = text.split(' ')[1];
         rfqObject.loanTerm = parseInt(text.split(' ')[0]);
-        sendRFQ(sender);
+        botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
   	    botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
@@ -66,7 +66,7 @@ app.post('/webhook/', (req, res) => {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
       if (parsedTextObject.payload === 'How Much Would You Like?') {
-        askHowMuch(sender);
+        botMessages.askHowMuch(sender);
         continue;
       }
       if (parsedTextObject.payload === 'RFQS GET') {
@@ -85,122 +85,3 @@ app.post('/webhook/', (req, res) => {
   }
   res.sendStatus(200);
 });
-
-const token = process.env.PAGE_ACCESS_TOKEN;
-
-function sendGenericMessage(sender) {
-  const messageData = {
-	    attachment: {
-      type: 'template',
-				      payload: {
-				        template_type: 'button',
-				        text: 'What do you want to do next?',
-				        buttons: [
-				          {
-				            type: 'postback',
-            title: 'Get A Loan',
-            payload: 'How Much Would You Like?'
-				          },
-				          {
-				            type: 'postback',
-				            title: 'See Loan Requests',
-				            payload: 'RFQS GET'
-				          }
-				        ]
-				      }
-				    }
-  };
-  request({
-	    url: 'https://graph.facebook.com/v2.6/me/messages',
-	    qs: { access_token: token },
-	    method: 'POST',
-	    json: {
-		    recipient: { id: sender },
-		    message: messageData
-	    }
-  }, (error, response, body) => {
-	    if (error) {
-		    console.log('Error sending messages: ', error);
-	    } else if (response.body.error) {
-		    console.log('Error: ', response.body.error);
-	    }
-  });
-}
-
-
-function askHowMuch(sender) {
-  const messageData = {
-    text: 'How Much Would You Like A Loan For?'
-  };
-  request({
-	    url: 'https://graph.facebook.com/v2.6/me/messages',
-	    qs: { access_token: token },
-	    method: 'POST',
-	    json: {
-		    recipient: { id: sender },
-		    message: messageData
-	    }
-  }, (error, response, body) => {
-	    if (error) {
-		    console.log('Error sending messages: ', error);
-	    } else if (response.body.error) {
-		    console.log('Error: ', response.body.error);
-	    }
-  });
-}
-
-function askForHowLong(sender) {
-  const messageData = {
-    text: 'For How Long?'
-  };
-  request({
-	    url: 'https://graph.facebook.com/v2.6/me/messages',
-	    qs: { access_token: token },
-	    method: 'POST',
-	    json: {
-		    recipient: { id: sender },
-		    message: messageData
-	    }
-  }, (error, response, body) => {
-	    if (error) {
-		    console.log('Error sending messages: ', error);
-	    } else if (response.body.error) {
-		    console.log('Error: ', response.body.error);
-	    }
-  });
-}
-
-function sendRFQ(sender) {
-  console.log('+_+_+_+_+_+_+_+_+_+_+_+_+_+__+_+_+_+_+_+_+_+_+_++_+_+_+_', rfqObject);
-
-  const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
-    method: 'POST',
-    body: rfqObject,
-    json: true
-  };
-
-  return rp(params)
-    .then((result) => {
-      const messageData = {
-        text: 'Your loan request has been sent!'
-      };
-    	request({
-	  	  url: 'https://graph.facebook.com/v2.6/me/messages',
-	  	  qs: { access_token: token },
-	  	  method: 'POST',
-	  	  json: {
-			    recipient: { id: sender },
-			    message: messageData
-	  	  }
-    	}, (error, response, body) => {
-	  	  if (error) {
-			    console.log('Error sending messages: ', error);
-	  	  } else if (response.body.error) {
-			    console.log('Error: ', response.body.error);
-	  	  }
-    	});
-    });
-}
-

@@ -27,6 +27,63 @@ function sendTextMessage(sender, text) {
   sendRequest(sender, messageData);
 }
 
+function sendWelcomeMenu(sender) {
+  const messageData = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'What do you want to do next?',
+        buttons: [
+          {
+            type: 'postback',
+            title: 'Get A Loan',
+            payload: 'How Much Would You Like?'
+          },
+          {
+            type: 'postback',
+            title: 'See Loan Requests',
+            payload: 'RFQS GET'
+          }
+        ]
+      }
+    }
+  };
+  sendRequest(sender, messageData);
+}
+
+function askHowMuch(sender) {
+  const messageData = {
+    text: 'How Much Would You Like A Loan For?'
+  };
+  sendRequest(sender, messageData);
+}
+
+function askForHowLong(sender) {
+  const messageData = {
+    text: 'For How Long?'
+  };
+  sendRequest(sender, messageData);
+}
+
+function sendRFQ(sender, rfqObject) {
+  const params = {
+    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
+    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
+    method: 'POST',
+    body: rfqObject,
+    json: true
+  };
+
+  return rp(params)
+    .then(() => {
+      const messageData = {
+        text: 'Your loan request has been sent!'
+      };
+      sendRequest(sender, messageData);
+    });
+}
+
 function getRFQS(sender) {
   const params = {
     headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
@@ -37,12 +94,12 @@ function getRFQS(sender) {
   return rp(params)
   .then((results) => {
     const listTemplate = JSON.parse(results).rfqs.map(rfq => ({
-      title: `Your Loan Request for £${rfq.payload.loanAmount} over ${rfq.payload.termPeriod} ${rfq.payload.loanTerm}`,
+      title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
       subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
       buttons: [
         {
           type: 'postback',
-          title: `Your Loan for ${rfq.payload.loanAmount}`,
+          title: 'Check For Quotes',
           payload: `RFQ: ${rfq.rfqNumber}`
         }
       ]
@@ -66,5 +123,9 @@ function getRFQS(sender) {
 
 module.exports = {
   sendTextMessage,
+  sendWelcomeMenu,
+  askHowMuch,
+  askForHowLong,
+  sendRFQ,
   getRFQS
 };
