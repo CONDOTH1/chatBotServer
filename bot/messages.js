@@ -134,18 +134,18 @@ function getQuotesForRfq(sender, rfqNumber) {
     const listTemplate = results.quotes.map(quote => ({
       title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
       subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
-      buttons: quote.status === 'accept' ? [
+      buttons: quote.status !== 'pending' ? [
         {
           type: 'postback',
-          title: 'View: Accepted',
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}`
+          title: `View: ${quote.status}ed`,
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber} `
           // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
         }
       ] : [
         {
           type: 'postback',
           title: 'View',
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}`
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber} `
           // payload: `VIEW QUOTE: ${quote.quoteNumber}`
         }
       ]
@@ -167,27 +167,46 @@ function getQuotesForRfq(sender, rfqNumber) {
   });
 }
 
-function acceptQuote(sender, quoteNumber) {
+function acceptRejectQuote(sender, payloadArray) {
   const params = {
     headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
     uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/quotes',
     method: 'PUT',
-    body: { quoteNumber, status: 'accept' },
+    body: { quoteNumber: payloadArray[1], status: payloadArray[0] },
     json: true
   };
 
   return rp(params)
     .then(() => {
       const messageData = {
-        text: 'You Have Accepted The Quote!'
+        text: `You Have ${payloadArray[1]}ed The Offer!`
       };
       sendRequest(sender, messageData);
     });
 }
 
-function viewQuote(sender, messageData) {
-
+function acceptRejectButtons(sender, quoteNumber) {
+  const messageData = {
+    text: 'Options:',
+    quick_replies: [
+      {
+        content_type: 'text',
+        title: 'Reject',
+        payload: `reject:${quoteNumber}`,
+        image_url: 'http://www.colorcombos.com/images/colors/FF0000.png'
+      },
+      {
+        content_type: 'text',
+        title: 'Accept',
+        payload: `accept:${quoteNumber}`,
+        image_url: 'http://petersfantastichats.com/img/green.png'
+      }
+    ]
+  };
+  console.log('{}{}{}{}{}{}{}{}{}{}{}{{}', messageData);
+  sendRequest(sender, messageData);
 }
+
 module.exports = {
   sendTextMessage,
   sendWelcomeMenu,
@@ -196,5 +215,6 @@ module.exports = {
   sendRFQ,
   getRFQS,
   getQuotesForRfq,
-  acceptQuote
+  acceptRejectQuote,
+  acceptRejectButtons
 };

@@ -80,12 +80,15 @@ app.post('/webhook/', (req, res) => {
       }
       if (parsedTextObject.payload.includes('VIEW QUOTE:')) {
         const quote = parsedTextObject.payload.split('QUOTE: ')[1];
-        console.log('}{}{}{}{}{}{}{}{}{}{}}{', quote);
-        botMessages.sendTextMessage(sender, quote);
-        // botMessages.acceptQuote(sender, quoteNumber);
+        const quoteDetails = quote.split('::');
+        botMessages.sendTextMessage(sender, quoteDetails[0]);
+        botMessages.acceptRejectButtons(sender, quoteDetails[1]);
         continue;
       }
-      console.log('}{}{}{}{}{}{}{}{}{}{}}{', parsedTextObject.payload);
+      if (parsedTextObject.payload.includes('accept:') || parsedTextObject.payload.includes('reject:')) {
+        const payload = parsedTextObject.payload.split(':');
+        botMessages.acceptRejectQuote(sender, payload);
+      }
       // if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
       //   botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
       //   const rfqNumber = parsedTextObject.payload.split(': ')[1];
