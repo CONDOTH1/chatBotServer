@@ -137,14 +137,16 @@ function getQuotesForRfq(sender, rfqNumber) {
       buttons: quote.status === 'accept' ? [
         {
           type: 'postback',
-          title: 'Offer Accepted',
-          payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
+          title: 'View: Accepted',
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}`
+          // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
         }
       ] : [
         {
           type: 'postback',
-          title: 'Accept Offer',
-          payload: `QUOTE: ${quote.quoteNumber}`
+          title: 'View',
+          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}`
+          // payload: `VIEW QUOTE: ${quote.quoteNumber}`
         }
       ]
     }));
@@ -181,6 +183,10 @@ function acceptQuote(sender, quoteNumber) {
       };
       sendRequest(sender, messageData);
     });
+}
+
+function viewQuote(sender, messageData) {
+
 }
 module.exports = {
   sendTextMessage,

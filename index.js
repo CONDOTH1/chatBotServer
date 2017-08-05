@@ -78,17 +78,20 @@ app.post('/webhook/', (req, res) => {
         botMessages.getQuotesForRfq(sender, rfqNumber);
         continue;
       }
-      if (parsedTextObject.payload.includes('QUOTE:')) {
-        const quoteNumber = parsedTextObject.payload.split(' ')[1];
-        botMessages.acceptQuote(sender, quoteNumber);
+      if (parsedTextObject.payload.includes('VIEW QUOTE:')) {
+        const quote = parsedTextObject.payload.split('QUOTE: ')[1];
+        console.log('}{}{}{}{}{}{}{}{}{}{}}{', quote);
+        botMessages.sendTextMessage(sender, quote);
+        // botMessages.acceptQuote(sender, quoteNumber);
         continue;
       }
-      if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
-        botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
-        const rfqNumber = parsedTextObject.payload.split(': ')[1];
-        botMessages.getQuotesForRfq(sender, rfqNumber);
-        continue;
-      }
+      console.log('}{}{}{}{}{}{}{}{}{}{}}{', parsedTextObject.payload);
+      // if (parsedTextObject.payload.includes('OFFER ALREADY ACCEPTED:')) {
+      //   botMessages.sendTextMessage(sender, 'You Have Already Accepted This Offer');
+      //   const rfqNumber = parsedTextObject.payload.split(': ')[1];
+      //   botMessages.getQuotesForRfq(sender, rfqNumber);
+      //   continue;
+      // }
       botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
       continue;
     }
