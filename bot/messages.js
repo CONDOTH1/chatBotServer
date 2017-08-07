@@ -113,7 +113,14 @@ function getRFQS(sender) {
         payload: {
           template_type: 'list',
           top_element_style: 'compact',
-          elements: listGroupOfFour
+          elements: listGroupOfFour,
+          buttons: [
+            {
+              title: 'View More',
+              type: 'postback',
+              payload: 'VIEW MORE QUOTES:'
+            }
+          ]
         }
       }
     };

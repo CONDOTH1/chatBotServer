@@ -92,12 +92,16 @@ app.post('/webhook/', (req, res) => {
       if (parsedTextObject.payload.includes('USER ASKED TO SEE A QUOTE:')) {
         const quote = parsedTextObject.payload.split('QUOTE:')[1];
         const quoteDetails = quote.split('::');
-        // botMessages.sendTextMessage(sender, quoteDetails[0]);
         if (quoteDetails[2] === 'pending') {
           botMessages.acceptRejectButtons(sender, quoteDetails[0], quoteDetails[1]);
         } else {
           botMessages.returnToQuotesButton(sender, quoteDetails[0], quoteDetails[3]);
         }
+        continue;
+      }
+      if (parsedTextObject.payload.includes('VIEW MORE RFQS:')) {
+        // const rfqNumber = parsedTextObject.payload.split('QUOTES:')[1];
+        botMessages.sendTextMessage(sender, 'You\'ve Requested To See More Quotes');
         continue;
       }
       botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
