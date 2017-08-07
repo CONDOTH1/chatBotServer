@@ -139,26 +139,37 @@ function getQuotesForRfq(sender, rfqNumber) {
 
   return rp(params)
   .then((results) => {
-    const listTemplate = results.quotes.map(quote => ({
-      title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
-      subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
-      buttons: quote.status !== 'pending' ? [
-        {
-          type: 'postback',
-          title: `View: ${quote.status}ed`,
-          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+    const listTemplate = results.quotes.reduce((result, quote) => {
+      if (quote.status === 'declined') {
+        return result;
+      }
+      result.push({
+        title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
+        subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
+        buttons: quote.status !== 'pending' ? [
+          {
+            type: 'postback',
+            title: `View: ${quote.status}ed`,
+            payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
-        }
-      ] : [
-        {
-          type: 'postback',
-          title: 'View',
-          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          }
+        ] : [
+          {
+            type: 'postback',
+            title: 'View',
+            payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `VIEW QUOTE: ${quote.quoteNumber}`
-        }
-      ]
-    }));
+          }
+        ]
+      });
 
+      return result;
+    }, []);
+
+    if (listTemplate.includes('declined')) {
+      const index = listTemplate.indexOf('declined');
+      listTemplate.splice(index, 1);
+    }
     const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
 
     const messageData = {
