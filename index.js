@@ -101,7 +101,7 @@ app.post('/webhook/', (req, res) => {
       }
       if (parsedTextObject.payload.includes('VIEW MORE RFQS:')) {
         // const rfqNumber = parsedTextObject.payload.split('QUOTES:')[1];
-        botMessages.sendTextMessage(sender, 'You\'ve Requested To See More Quotes');
+        botMessages.viewMoreList(sender);
         continue;
       }
       botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);

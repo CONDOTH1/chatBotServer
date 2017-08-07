@@ -4,6 +4,7 @@ const helper = require('./../helper/helper.js');
 const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
+let rfqsListTemplate;
 
 function sendRequest(sender, messageData) {
   request({
@@ -94,7 +95,7 @@ function getRFQS(sender) {
 
   return rp(params)
   .then((results) => {
-    const listTemplate = JSON.parse(results).rfqs.map(rfq => ({
+    rfqsListTemplate = JSON.parse(results).rfqs.map(rfq => ({
       title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
       subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
       buttons: [
@@ -106,27 +107,33 @@ function getRFQS(sender) {
       ]
     }));
 
-    const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
-
-    const messageData = {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'list',
-          top_element_style: 'compact',
-          elements: listGroupOfFour,
-          buttons: [
-            {
-              title: 'View More',
-              type: 'postback',
-              payload: 'VIEW MORE QUOTES:'
-            }
-          ]
-        }
-      }
-    };
+    const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
+    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS:');
+    // {
+    //   attachment: {
+    //     type: 'template',
+    //     payload: {
+    //       template_type: 'list',
+    //       top_element_style: 'compact',
+    //       elements: listGroupOfFour,
+    //       buttons: [
+    //         {
+    //           title: 'View More',
+    //           type: 'postback',
+    //           payload: 'VIEW MORE QUOTES:'
+    //         }
+    //       ]
+    //     }
+    //   }
+    // };
     sendRequest(sender, messageData);
   });
+}
+
+function viewMoreList(sender) {
+  const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
+  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS:');
+  sendRequest(sender, messageData);
 }
 
 function getQuotesForRfq(sender, rfqNumber) {
@@ -172,18 +179,8 @@ function getQuotesForRfq(sender, rfqNumber) {
       listTemplate.splice(index, 1);
     }
     const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
+    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE QUOTES:');
 
-    const messageData = helper.createRfqList(listGroupOfFour);
-    // const messageData = {
-    //   attachment: {
-    //     type: 'template',
-    //     payload: {
-    //       template_type: 'list',
-    //       top_element_style: 'compact',
-    //       elements: listGroupOfFour
-    //     }
-    //   }
-    // };
     sendRequest(sender, messageData);
   });
 }
@@ -252,5 +249,6 @@ module.exports = {
   getQuotesForRfq,
   acceptRejectQuote,
   acceptRejectButtons,
-  returnToQuotesButton
+  returnToQuotesButton,
+  viewMoreList
 };
