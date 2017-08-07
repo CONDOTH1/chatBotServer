@@ -5,6 +5,7 @@ const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
 let rfqsListTemplate;
+let quotesListTemplate;
 
 function sendRequest(sender, messageData) {
   request({
@@ -35,7 +36,7 @@ function sendWelcomeMenu(sender) {
       type: 'template',
       payload: {
         template_type: 'button',
-        text: 'What do you want to do next?',
+        text: 'Hi, Please Select An Action?',
         buttons: [
           {
             type: 'postback',
@@ -46,6 +47,26 @@ function sendWelcomeMenu(sender) {
             type: 'postback',
             title: 'See Loan Requests',
             payload: 'USER ASKED TO SEE LOANS'
+          }
+        ]
+      }
+    }
+  };
+  sendRequest(sender, messageData);
+}
+
+function selectCurrency(sender) {
+  const messageData = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Please Select Your Currency',
+        buttons: [
+          {
+            type: 'postback',
+            title: 'GBP £',
+            payload: 'USER SELECTED GBP'
           }
         ]
       }
@@ -108,31 +129,20 @@ function getRFQS(sender) {
     }));
 
     const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
-    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS:');
-    // {
-    //   attachment: {
-    //     type: 'template',
-    //     payload: {
-    //       template_type: 'list',
-    //       top_element_style: 'compact',
-    //       elements: listGroupOfFour,
-    //       buttons: [
-    //         {
-    //           title: 'View More',
-    //           type: 'postback',
-    //           payload: 'VIEW MORE QUOTES:'
-    //         }
-    //       ]
-    //     }
-    //   }
-    // };
+    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS');
     sendRequest(sender, messageData);
   });
 }
 
-function viewMoreList(sender) {
+function viewMoreRfqs(sender) {
   const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
-  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS:');
+  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS');
+  sendRequest(sender, messageData);
+}
+
+function viewMoreQuotes(sender) {
+  const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
+  const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
   sendRequest(sender, messageData);
 }
 
@@ -147,7 +157,7 @@ function getQuotesForRfq(sender, rfqNumber) {
 
   return rp(params)
   .then((results) => {
-    const listTemplate = results.quotes.reduce((result, quote) => {
+    quotesListTemplate = results.quotes.reduce((result, quote) => {
       if (quote.status === 'declined') {
         return result;
       }
@@ -174,12 +184,8 @@ function getQuotesForRfq(sender, rfqNumber) {
       return result;
     }, []);
 
-    if (listTemplate.includes('declined')) {
-      const index = listTemplate.indexOf('declined');
-      listTemplate.splice(index, 1);
-    }
-    const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
-    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE QUOTES:');
+    const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
+    const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
 
     sendRequest(sender, messageData);
   });
@@ -250,5 +256,7 @@ module.exports = {
   acceptRejectQuote,
   acceptRejectButtons,
   returnToQuotesButton,
-  viewMoreList
+  viewMoreRfqs,
+  viewMoreQuotes,
+  selectCurrency
 };

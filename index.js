@@ -47,8 +47,9 @@ app.post('/webhook/', (req, res) => {
         botMessages.sendWelcomeMenu(sender);
         continue;
       }
-      if (text.includes('£')) {
-        rfqObject.loanAmount = parseInt(text.replace(/\u00A3/g, ''), 10);
+      if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {
+        rfqObject.loanAmount += parseInt(text.replace(/\u00A3/g, ''), 10);
+        console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
         botMessages.askForHowLong(sender);
         continue;
       }
@@ -69,7 +70,7 @@ app.post('/webhook/', (req, res) => {
         botMessages.getQuotesForRfq(sender, rfqNumber);
         continue;
       }
-      botMessages.sendTextMessage(sender, `Text received, echo: ${text.substring(0, 200)}`);
+      botMessages.sendTextMessage(sender, 'Sorry, I Didn\'t Recognise That Request');
       continue;
     }
 
@@ -77,6 +78,11 @@ app.post('/webhook/', (req, res) => {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
       if (parsedTextObject.payload === 'USER ASK TO CREATE A LOAN') {
+        botMessages.selectCurrency(sender);
+        continue;
+      }
+      if (parsedTextObject.payload === 'USER SELECTED GBP') {
+        rfqObject.loanAmount = '£';
         botMessages.askHowMuch(sender);
         continue;
       }
@@ -99,12 +105,15 @@ app.post('/webhook/', (req, res) => {
         }
         continue;
       }
-      if (parsedTextObject.payload.includes('VIEW MORE RFQS:')) {
-        // const rfqNumber = parsedTextObject.payload.split('QUOTES:')[1];
-        botMessages.viewMoreList(sender);
+      if (parsedTextObject.payload.includes('VIEW MORE RFQS')) {
+        botMessages.viewMoreRfqs(sender);
         continue;
       }
-      botMessages.sendTextMessage(sender, `Postback received: ${text.substring(0, 200)}`);
+      if (parsedTextObject.payload.includes('VIEW MORE QUOTES')) {
+        botMessages.viewMoreQuotes(sender);
+        continue;
+      }
+      botMessages.sendTextMessage(sender, 'Sorry, I Didn\'t Recognise That Request');
       continue;
     }
   }
