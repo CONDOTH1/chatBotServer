@@ -1,5 +1,6 @@
 const request = require('request');
 const rp = require('request-promise');
+const helper = require('./../helper/helper.js');
 const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
@@ -172,16 +173,17 @@ function getQuotesForRfq(sender, rfqNumber) {
     }
     const listGroupOfFour = listTemplate.length > 4 ? listTemplate.splice(0, 4) : listTemplate;
 
-    const messageData = {
-      attachment: {
-        type: 'template',
-        payload: {
-          template_type: 'list',
-          top_element_style: 'compact',
-          elements: listGroupOfFour
-        }
-      }
-    };
+    const messageData = helper.createRfqList(listGroupOfFour);
+    // const messageData = {
+    //   attachment: {
+    //     type: 'template',
+    //     payload: {
+    //       template_type: 'list',
+    //       top_element_style: 'compact',
+    //       elements: listGroupOfFour
+    //     }
+    //   }
+    // };
     sendRequest(sender, messageData);
   });
 }
