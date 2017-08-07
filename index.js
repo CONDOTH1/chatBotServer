@@ -94,7 +94,7 @@ app.post('/webhook/', (req, res) => {
       }
       if (parsedTextObject.payload === 'USER SELECTED DAYS') {
         rfqObject.termPeriod = 'days';
-        botMessages.askForHowLong(sender);
+        botMessages.displayDayButtons(sender);
         continue;
       }
       if (parsedTextObject.payload === 'USER SELECTED MONTHS') {

@@ -1,6 +1,7 @@
 const request = require('request');
 const rp = require('request-promise');
 const helper = require('./../helper/helper.js');
+const calendarButtons = require('./../helper/calendarButtons.js');
 const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
@@ -113,6 +114,11 @@ function selectTermPeriod(sender) {
       }
     }
   };
+  sendRequest(sender, messageData);
+}
+
+function displayDayButtons(sender) {
+  const messageData = calendarButtons.daysOfMonth();
   sendRequest(sender, messageData);
 }
 
@@ -295,5 +301,6 @@ module.exports = {
   viewMoreRfqs,
   viewMoreQuotes,
   selectCurrency,
-  selectTermPeriod
+  selectTermPeriod,
+  displayDayButtons
 };
