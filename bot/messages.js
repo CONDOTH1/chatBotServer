@@ -38,12 +38,12 @@ function sendWelcomeMenu(sender) {
           {
             type: 'postback',
             title: 'Get A Loan',
-            payload: 'How Much Would You Like?'
+            payload: 'USER ASK TO CREATE A LOAN'
           },
           {
             type: 'postback',
             title: 'See Loan Requests',
-            payload: 'RFQS GET'
+            payload: 'USER ASKED TO SEE LOANS'
           }
         ]
       }
@@ -100,7 +100,7 @@ function getRFQS(sender) {
         {
           type: 'postback',
           title: 'Check For Quotes',
-          payload: `RFQ: ${rfq.rfqNumber}`
+          payload: `USER ASKED TO SEE QUOTES:${rfq.rfqNumber}`
         }
       ]
     }));
@@ -139,14 +139,14 @@ function getQuotesForRfq(sender, rfqNumber) {
         {
           type: 'postback',
           title: `View: ${quote.status}ed`,
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
         }
       ] : [
         {
           type: 'postback',
           title: 'View',
-          payload: `VIEW QUOTE: Provider: ${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
           // payload: `VIEW QUOTE: ${quote.quoteNumber}`
         }
       ]
@@ -177,7 +177,6 @@ function acceptRejectQuote(sender, payloadArray) {
     json: true
   };
 
-  console.log('+_+_+_+_+_+_+__+__+_+_+_+_+_', params);
   return rp(params)
     .then(() => {
       const messageData = {

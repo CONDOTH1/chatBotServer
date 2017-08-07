@@ -43,7 +43,7 @@ app.post('/webhook/', (req, res) => {
 
     if (event.message && event.message.text) {
       const text = event.message.text;
-      if (text === 'Generic') {
+      if (text === 'Hello') {
         botMessages.sendWelcomeMenu(sender);
         continue;
       }
@@ -76,21 +76,21 @@ app.post('/webhook/', (req, res) => {
     if (event.postback) {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
-      if (parsedTextObject.payload === 'How Much Would You Like?') {
+      if (parsedTextObject.payload === 'USER ASK TO CREATE A LOAN') {
         botMessages.askHowMuch(sender);
         continue;
       }
-      if (parsedTextObject.payload === 'RFQS GET') {
+      if (parsedTextObject.payload === 'USER ASKED TO SEE LOANS') {
         botMessages.getRFQS(sender);
         continue;
       }
-      if (parsedTextObject.payload.includes('RFQ:')) {
-        const rfqNumber = parsedTextObject.payload.split(' ')[1];
+      if (parsedTextObject.payload.includes('USER ASKED TO SEE QUOTES:')) {
+        const rfqNumber = parsedTextObject.payload.split('QUOTES:')[1];
         botMessages.getQuotesForRfq(sender, rfqNumber);
         continue;
       }
-      if (parsedTextObject.payload.includes('VIEW QUOTE:')) {
-        const quote = parsedTextObject.payload.split('QUOTE: ')[1];
+      if (parsedTextObject.payload.includes('USER ASKED TO SEE A QUOTE:')) {
+        const quote = parsedTextObject.payload.split('QUOTE:')[1];
         const quoteDetails = quote.split('::');
         // botMessages.sendTextMessage(sender, quoteDetails[0]);
         if (quoteDetails[2] === 'pending') {
