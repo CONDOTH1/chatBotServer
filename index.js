@@ -44,7 +44,7 @@ app.post('/webhook/', (req, res) => {
     if (event.message && event.message.text) {
       const text = event.message.text;
       if (text === 'Hello') {
-        botMessages.sendWelcomeMenu(sender);
+        botMessages.sendWelcomeMenu(sender, true);
         continue;
       }
       if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {

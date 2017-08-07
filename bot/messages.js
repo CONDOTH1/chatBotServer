@@ -30,13 +30,17 @@ function sendTextMessage(sender, text) {
   sendRequest(sender, messageData);
 }
 
-function sendWelcomeMenu(sender) {
+function sendWelcomeMenu(sender, isFirstInteraction) {
+  if (isFirstInteraction) {
+    const welcomeMessage = 'Hi, welcome to the JigsawBot';
+    sendRequest(sender, welcomeMessage);
+  }
   const messageData = {
     attachment: {
       type: 'template',
       payload: {
         template_type: 'button',
-        text: 'Hi, Please Select An Action?',
+        text: 'Please Select An Action Below?',
         buttons: [
           {
             type: 'postback',
@@ -134,6 +138,7 @@ function sendRFQ(sender, rfqObject) {
         text: 'Your loan request has been sent!'
       };
       sendRequest(sender, messageData);
+      sendWelcomeMenu(sender, false);
     });
 }
 
@@ -233,9 +238,10 @@ function acceptRejectQuote(sender, payloadArray) {
   return rp(params)
     .then(() => {
       const messageData = {
-        text: `You Have ${payloadArray[0]}ed The Offer!`
+        text: `You have ${payloadArray[0]}ed the offer!`
       };
       sendRequest(sender, messageData);
+      sendWelcomeMenu(sender, false);
     });
 }
 
