@@ -48,18 +48,24 @@ app.post('/webhook/', (req, res) => {
         continue;
       }
       if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {
-        rfqObject.loanAmount += parseInt(text.replace(/\u00A3/g, ''), 10);
+        rfqObject.loanAmount = parseInt(text, 10);
         console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
-        botMessages.askForHowLong(sender);
+        botMessages.selectTermPeriod(sender);
         continue;
       }
-      const termArray = ['years', 'days', 'months'];
-      if (termArray.includes(text.split(' ')[1])) {
-        rfqObject.termPeriod = text.split(' ')[1];
-        rfqObject.loanTerm = parseInt(text.split(' ')[0], 10);
+      if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) < 100) {
+        rfqObject.loanTerm = parseInt(text, 10);
+        console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
         botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
+      // const termArray = ['years', 'days', 'months'];
+      // if (termArray.includes(text.split(' ')[1])) {
+      //   rfqObject.termPeriod = text.split(' ')[1];
+      //   rfqObject.loanTerm = parseInt(text.split(' ')[0], 10);
+      //   botMessages.sendRFQ(sender, rfqObject);
+      //   continue;
+      // }
       if (text.includes('Accept') || text.includes('Reject')) {
         const quoteNumber = event.message.quick_reply.payload.split(':');
         botMessages.acceptRejectQuote(sender, quoteNumber);
@@ -82,8 +88,23 @@ app.post('/webhook/', (req, res) => {
         continue;
       }
       if (parsedTextObject.payload === 'USER SELECTED GBP') {
-        rfqObject.loanAmount = '£';
+        // rfqObject.loanAmount = '£';
         botMessages.askHowMuch(sender);
+        continue;
+      }
+      if (parsedTextObject.payload === 'USER SELECTED DAYS') {
+        rfqObject.termPeriod = 'days';
+        botMessages.askForHowLong(sender);
+        continue;
+      }
+      if (parsedTextObject.payload === 'USER SELECTED MONTHS') {
+        rfqObject.termPeriod = 'months';
+        botMessages.askForHowLong(sender);
+        continue;
+      }
+      if (parsedTextObject.payload === 'USER SELECTED YEARS') {
+        rfqObject.termPeriod = 'years';
+        botMessages.askForHowLong(sender);
         continue;
       }
       if (parsedTextObject.payload === 'USER ASKED TO SEE LOANS') {

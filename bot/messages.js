@@ -82,6 +82,36 @@ function askHowMuch(sender) {
   sendRequest(sender, messageData);
 }
 
+function selectTermPeriod(sender) {
+  const messageData = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Please Select Term Period',
+        buttons: [
+          {
+            type: 'postback',
+            title: 'Days',
+            payload: 'USER SELECTED DAYS'
+          },
+          {
+            type: 'postback',
+            title: 'Months',
+            payload: 'USER SELECTED MONTHS'
+          },
+          {
+            type: 'postback',
+            title: 'Years',
+            payload: 'USER SELECTED YEARS'
+          }
+        ]
+      }
+    }
+  };
+  sendRequest(sender, messageData);
+}
+
 function askForHowLong(sender) {
   const messageData = {
     text: 'For How Long?'
@@ -258,5 +288,6 @@ module.exports = {
   returnToQuotesButton,
   viewMoreRfqs,
   viewMoreQuotes,
-  selectCurrency
+  selectCurrency,
+  selectTermPeriod
 };
