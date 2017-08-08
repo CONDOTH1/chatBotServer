@@ -103,11 +103,6 @@ function selectTermPeriod(sender) {
       },
       {
         content_type: 'text',
-        title: 'Weeks',
-        payload: 'USER SELECTED WEEKS'
-      },
-      {
-        content_type: 'text',
         title: 'Months',
         payload: 'USER SELECTED MONTHS'
       },
@@ -125,11 +120,6 @@ function selectTermPeriod(sender) {
 
 function displayDayButtons(sender) {
   const messageData = calendarButtons.daysOfWeek();
-  sendRequest(sender, messageData);
-}
-
-function displayWeekButtons(sender) {
-  const messageData = calendarButtons.weeksInAMonth();
   sendRequest(sender, messageData);
 }
 
@@ -324,7 +314,6 @@ module.exports = {
   selectCurrency,
   selectTermPeriod,
   displayDayButtons,
-  displayWeekButtons,
   displayMonthsButtons,
   displayYearsButtons
 };

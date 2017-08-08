@@ -34,6 +34,7 @@ app.listen(app.get('port'), () => {
 });
 
 const rfqObject = {};
+let settingAmountGBP = false;
 
 app.post('/webhook/', (req, res) => {
   const messagingEvents = req.body.entry[0].messaging;
@@ -47,13 +48,15 @@ app.post('/webhook/', (req, res) => {
         botMessages.sendWelcomeMenu(sender, true);
         continue;
       }
-      if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {
+      // if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {
+      if (!isNaN(parseInt(text, 10)) && settingAmountGBP) {
         rfqObject.loanAmount = parseInt(text, 10);
         console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
+        settingAmountGBP = false;
         botMessages.selectTermPeriod(sender);
         continue;
       }
-      if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) < 100) {
+      if (!isNaN(parseInt(text, 10)) && !settingAmountGBP) {
         rfqObject.loanTerm = parseInt(text, 10);
         console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
         botMessages.sendRFQ(sender, rfqObject);
@@ -78,22 +81,17 @@ app.post('/webhook/', (req, res) => {
       }
       if (text.includes('Days')) {
         rfqObject.termPeriod = 'days';
-        botMessages.displayDayButtons(sender);
-        continue;
-      }
-      if (text.includes('Weeks')) {
-        rfqObject.termPeriod = 'weeks';
-        botMessages.displayWeekButtons(sender);
+        botMessages.askForHowLong(sender);
         continue;
       }
       if (text.includes('Months')) {
         rfqObject.termPeriod = 'months';
-        botMessages.displayMonthsButtons(sender);
+        botMessages.askForHowLong(sender);
         continue;
       }
       if (text.includes('Years')) {
         rfqObject.termPeriod = 'years';
-        botMessages.displayYearsButtons(sender);
+        botMessages.askForHowLong(sender);
         continue;
       }
       console.log('}{}{}{}{}{}{}{}{}{}{}{{', event.message);
@@ -105,7 +103,9 @@ app.post('/webhook/', (req, res) => {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
       if (parsedTextObject.payload === 'USER ASK TO CREATE A LOAN') {
-        botMessages.selectCurrency(sender);
+        // botMessages.selectCurrency(sender);
+        settingAmountGBP = true;
+        botMessages.askHowMuch(sender);
         continue;
       }
       if (parsedTextObject.payload === 'USER SELECTED GBP') {
