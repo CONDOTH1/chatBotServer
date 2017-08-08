@@ -1,7 +1,6 @@
 const request = require('request');
 const rp = require('request-promise');
 const helper = require('./../helper/helper.js');
-const calendarButtons = require('./../helper/calendarButtons.js');
 const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
@@ -190,39 +189,34 @@ function getQuotesForRfq(sender, rfqNumber) {
 
   return rp(params)
   .then((results) => {
-    quotesListTemplate = results.quotes.reduce((result, quote) => {
-      if (quote.status === 'declined') {
-        return result;
-      }
-      result.push({
-        title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
-        subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
-        buttons: quote.status !== 'pending' ? [
-          {
-            type: 'postback',
-            title: `View: ${quote.status}ed`,
-            payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
-          // payload: `OFFER ALREADY ACCEPTED: ${rfqNumber}`
-          }
-        ] : [
-          {
-            type: 'postback',
-            title: 'View',
-            payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
-          // payload: `VIEW QUOTE: ${quote.quoteNumber}`
-          }
-        ]
-      });
+    // quotesListTemplate = results.quotes.reduce((result, quote) => {
+    //   if (quote.status === 'declined') {
+    //     return result;
+    //   }
+    //   result.push({
+    //     title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
+    //     subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
+    //     buttons: quote.status !== 'pending' ? [
+    //       {
+    //         type: 'postback',
+    //         title: `View: ${quote.status}ed`,
+    //         payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+    //       }
+    //     ] : [
+    //       {
+    //         type: 'postback',
+    //         title: 'View',
+    //         payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+    //       }
+    //     ]
+    //   });
 
-      return result;
-    }, []);
-
+    //   return result;
+    // }, []);
+    quotesListTemplate = helper.createQuoteList(results, rfqNumber);
     const endOfQuoteList = quotesListTemplate.length <= 4;
     const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
     const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
-
-    // const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
-    // const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
 
     sendRequest(sender, messageData);
   });
@@ -256,7 +250,6 @@ function acceptRejectButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
 }
 
 function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
-  // const messageData = helper.returnToQuotesButton(quoteDetails, rfqNumber);
   const messageData = { text: quoteDetails, quick_replies: [] };
   messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
   sendRequest(sender, messageData);
