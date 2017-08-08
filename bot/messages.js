@@ -31,51 +31,13 @@ function sendTextMessage(sender, text) {
 }
 
 function sendWelcomeMenu(sender, isFirstInteraction) {
+  console.log('+_+_+_+_+_+_+_+_+_+_+');
   if (isFirstInteraction) {
-    const welcomeMessage = 'Hi, welcome to the JigsawBot';
-    sendRequest(sender, welcomeMessage);
+    console.log('|||||||||||||||_____________|||||||||||||||||');
+    const text = 'Hi, welcome to the JigsawBot';
+    sendRequest(sender, { text });
   }
-  const messageData = {
-    attachment: {
-      type: 'template',
-      payload: {
-        template_type: 'button',
-        text: 'Please Select An Action Below To Continue?',
-        buttons: [
-          {
-            type: 'postback',
-            title: 'Get A Loan',
-            payload: 'USER ASK TO CREATE A LOAN'
-          },
-          {
-            type: 'postback',
-            title: 'See Loan Requests',
-            payload: 'USER ASKED TO SEE LOANS'
-          }
-        ]
-      }
-    }
-  };
-  sendRequest(sender, messageData);
-}
-
-function selectCurrency(sender) {
-  const messageData = {
-    attachment: {
-      type: 'template',
-      payload: {
-        template_type: 'button',
-        text: 'Please Select Your Currency',
-        buttons: [
-          {
-            type: 'postback',
-            title: 'GBP £',
-            payload: 'USER SELECTED GBP'
-          }
-        ]
-      }
-    }
-  };
+  const messageData = helper.mainMenu();
   sendRequest(sender, messageData);
 }
 
@@ -188,12 +150,9 @@ function acceptRejectQuote(sender, payloadArray) {
 
 function acceptRejectButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
   const messageData = { text: quoteDetails, quick_replies: [] };
-  // messageData.quick_replies.push(helper.acceptButton(`reject:${quoteNumber}`));
   messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
   messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
   messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`, 'http://www.colorcombos.com/images/colors/000084.png'));
-  // messageData.quick_replies.push(helper.rejectButton(`accept:${quoteNumber}`));
-  // messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
   sendRequest(sender, messageData);
 }
 
@@ -216,6 +175,5 @@ module.exports = {
   returnToQuotesButton,
   viewMoreRfqs,
   viewMoreQuotes,
-  selectCurrency,
   selectTermPeriod
 };

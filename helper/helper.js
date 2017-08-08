@@ -27,33 +27,6 @@ function createListTemplate(listGroupOfFour, payloadText, endOfList) {
   return finalListTemplate;
 }
 
-function acceptButton(quoteNumber) {
-  return {
-    content_type: 'text',
-    title: 'Reject',
-    payload: `reject:${quoteNumber}`,
-    image_url: 'http://www.colorcombos.com/images/colors/FF0000.png'
-  };
-}
-
-function rejectButton(quoteNumber) {
-  return {
-    content_type: 'text',
-    title: 'Accept',
-    payload: `accept:${quoteNumber}`,
-    image_url: 'http://www.colorcombos.com/images/colors/00FF00.png'
-  };
-}
-
-function returnButton(title, payload) {
-  return {
-    content_type: 'text',
-    title,
-    payload,
-    image_url: 'http://www.colorcombos.com/images/colors/000084.png'
-  };
-}
-
 function quickRepliesButton(title, payload, imageUrl) {
   return {
     content_type: 'text',
@@ -106,13 +79,35 @@ function createRfqList(resultsFromRfqEngine) {
   return rfqsListTemplate;
 }
 
+function mainMenu() {
+  return {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'button',
+        text: 'Please Select An Action Below To Continue?',
+        buttons: [
+          {
+            type: 'postback',
+            title: 'Get A Loan',
+            payload: 'USER ASK TO CREATE A LOAN'
+          },
+          {
+            type: 'postback',
+            title: 'See Loan Requests',
+            payload: 'USER ASKED TO SEE LOANS'
+          }
+        ]
+      }
+    }
+  };
+}
+
 
 module.exports = {
   createListTemplate,
-  acceptButton,
-  rejectButton,
-  returnButton,
   createQuoteList,
   createRfqList,
-  quickRepliesButton
+  quickRepliesButton,
+  mainMenu
 };
