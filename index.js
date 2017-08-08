@@ -76,6 +76,27 @@ app.post('/webhook/', (req, res) => {
         botMessages.getQuotesForRfq(sender, rfqNumber);
         continue;
       }
+      if (text.includes('Days')) {
+        rfqObject.termPeriod = 'days';
+        botMessages.displayDayButtons(sender);
+        continue;
+      }
+      if (text.includes('Weeks')) {
+        rfqObject.termPeriod = 'weeks';
+        botMessages.displayWeekButtons(sender);
+        continue;
+      }
+      if (text.includes('Months')) {
+        rfqObject.termPeriod = 'months';
+        botMessages.displayMonthsButtons(sender);
+        continue;
+      }
+      if (text.includes('Years')) {
+        rfqObject.termPeriod = 'years';
+        botMessages.displayYearsButtons(sender);
+        continue;
+      }
+      console.log('}{}{}{}{}{}{}{}{}{}{}{{', event.message);
       botMessages.sendTextMessage(sender, 'Sorry, I Didn\'t Recognise That Request');
       continue;
     }
@@ -90,21 +111,6 @@ app.post('/webhook/', (req, res) => {
       if (parsedTextObject.payload === 'USER SELECTED GBP') {
         // rfqObject.loanAmount = '£';
         botMessages.askHowMuch(sender);
-        continue;
-      }
-      if (parsedTextObject.payload === 'USER SELECTED DAYS') {
-        rfqObject.termPeriod = 'days';
-        botMessages.displayDayButtons(sender);
-        continue;
-      }
-      if (parsedTextObject.payload === 'USER SELECTED MONTHS') {
-        rfqObject.termPeriod = 'months';
-        botMessages.askForHowLong(sender);
-        continue;
-      }
-      if (parsedTextObject.payload === 'USER SELECTED YEARS') {
-        rfqObject.termPeriod = 'years';
-        botMessages.askForHowLong(sender);
         continue;
       }
       if (parsedTextObject.payload === 'USER ASKED TO SEE LOANS') {

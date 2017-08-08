@@ -89,36 +89,57 @@ function askHowMuch(sender) {
 
 function selectTermPeriod(sender) {
   const messageData = {
-    attachment: {
-      type: 'template',
-      payload: {
-        template_type: 'button',
-        text: 'Please Select Term Period',
-        buttons: [
-          {
-            type: 'postback',
-            title: 'Days',
-            payload: 'USER SELECTED DAYS'
-          },
-          {
-            type: 'postback',
-            title: 'Months',
-            payload: 'USER SELECTED MONTHS'
-          },
-          {
-            type: 'postback',
-            title: 'Years',
-            payload: 'USER SELECTED YEARS'
-          }
-        ]
+    // attachment: {
+      // type: 'template',
+      // payload: {
+        // template_type: 'button',
+    text: 'Please Select Term Period',
+    quick_replies: [
+        // buttons: [
+      {
+        content_type: 'text',
+        title: 'Days',
+        payload: 'USER SELECTED DAYS'
+      },
+      {
+        content_type: 'text',
+        title: 'Weeks',
+        payload: 'USER SELECTED WEEKS'
+      },
+      {
+        content_type: 'text',
+        title: 'Months',
+        payload: 'USER SELECTED MONTHS'
+      },
+      {
+        content_type: 'text',
+        title: 'Years',
+        payload: 'USER SELECTED YEARS'
       }
-    }
+    ]
+      // }
+    // }
   };
   sendRequest(sender, messageData);
 }
 
 function displayDayButtons(sender) {
-  const messageData = calendarButtons.daysOfMonth();
+  const messageData = calendarButtons.daysOfWeek();
+  sendRequest(sender, messageData);
+}
+
+function displayWeekButtons(sender) {
+  const messageData = calendarButtons.weeksInAMonth();
+  sendRequest(sender, messageData);
+}
+
+function displayMonthsButtons(sender) {
+  const messageData = calendarButtons.MonthInAYear();
+  sendRequest(sender, messageData);
+}
+
+function displayYearsButtons(sender) {
+  const messageData = calendarButtons.numberOfYears();
   sendRequest(sender, messageData);
 }
 
@@ -302,5 +323,8 @@ module.exports = {
   viewMoreQuotes,
   selectCurrency,
   selectTermPeriod,
-  displayDayButtons
+  displayDayButtons,
+  displayWeekButtons,
+  displayMonthsButtons,
+  displayYearsButtons
 };
