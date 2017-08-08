@@ -41,7 +41,7 @@ function sendWelcomeMenu(sender, isFirstInteraction) {
       type: 'template',
       payload: {
         template_type: 'button',
-        text: 'Please Select An Action Below?',
+        text: 'Please Select An Action Below To Continue?',
         buttons: [
           {
             type: 'postback',
@@ -89,13 +89,8 @@ function askHowMuch(sender) {
 
 function selectTermPeriod(sender) {
   const messageData = {
-    // attachment: {
-      // type: 'template',
-      // payload: {
-        // template_type: 'button',
     text: 'Please Select Term Period',
     quick_replies: [
-        // buttons: [
       {
         content_type: 'text',
         title: 'Days',
@@ -112,24 +107,7 @@ function selectTermPeriod(sender) {
         payload: 'USER SELECTED YEARS'
       }
     ]
-      // }
-    // }
   };
-  sendRequest(sender, messageData);
-}
-
-function displayDayButtons(sender) {
-  const messageData = calendarButtons.daysOfWeek();
-  sendRequest(sender, messageData);
-}
-
-function displayMonthsButtons(sender) {
-  const messageData = calendarButtons.MonthInAYear();
-  sendRequest(sender, messageData);
-}
-
-function displayYearsButtons(sender) {
-  const messageData = calendarButtons.numberOfYears();
   sendRequest(sender, messageData);
 }
 
@@ -180,15 +158,17 @@ function getRFQS(sender) {
       ]
     }));
 
-    const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
-    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS');
+    const endOfRfqList = rfqsListTemplate.length <= 4;
+    const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
+    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
     sendRequest(sender, messageData);
   });
 }
 
 function viewMoreRfqs(sender) {
-  const listGroupOfFour = rfqsListTemplate.length > 4 ? rfqsListTemplate.splice(0, 4) : rfqsListTemplate;
-  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS');
+  const endOfRfqList = rfqsListTemplate.length <= 4;
+  const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
+  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
   sendRequest(sender, messageData);
 }
 
@@ -236,8 +216,12 @@ function getQuotesForRfq(sender, rfqNumber) {
       return result;
     }, []);
 
-    const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
-    const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
+    const endOfRfqList = quotesListTemplate.length <= 4;
+    const listGroupOfFour = endOfRfqList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
+    const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES', endOfRfqList);
+
+    // const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
+    // const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
 
     sendRequest(sender, messageData);
   });
@@ -312,8 +296,5 @@ module.exports = {
   viewMoreRfqs,
   viewMoreQuotes,
   selectCurrency,
-  selectTermPeriod,
-  displayDayButtons,
-  displayMonthsButtons,
-  displayYearsButtons
+  selectTermPeriod
 };

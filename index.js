@@ -48,27 +48,17 @@ app.post('/webhook/', (req, res) => {
         botMessages.sendWelcomeMenu(sender, true);
         continue;
       }
-      // if (!isNaN(parseInt(text, 10)) && parseInt(text, 10) > 100) {
       if (!isNaN(parseInt(text, 10)) && settingAmountGBP) {
         rfqObject.loanAmount = parseInt(text, 10);
-        console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
         settingAmountGBP = false;
         botMessages.selectTermPeriod(sender);
         continue;
       }
       if (!isNaN(parseInt(text, 10)) && !settingAmountGBP) {
         rfqObject.loanTerm = parseInt(text, 10);
-        console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqObject);
         botMessages.sendRFQ(sender, rfqObject);
         continue;
       }
-      // const termArray = ['years', 'days', 'months'];
-      // if (termArray.includes(text.split(' ')[1])) {
-      //   rfqObject.termPeriod = text.split(' ')[1];
-      //   rfqObject.loanTerm = parseInt(text.split(' ')[0], 10);
-      //   botMessages.sendRFQ(sender, rfqObject);
-      //   continue;
-      // }
       if (text.includes('Accept') || text.includes('Reject')) {
         const quoteNumber = event.message.quick_reply.payload.split(':');
         botMessages.acceptRejectQuote(sender, quoteNumber);
@@ -94,7 +84,6 @@ app.post('/webhook/', (req, res) => {
         botMessages.askForHowLong(sender);
         continue;
       }
-      console.log('}{}{}{}{}{}{}{}{}{}{}{{', event.message);
       botMessages.sendTextMessage(sender, 'Sorry, I Didn\'t Recognise That Request');
       continue;
     }
@@ -103,13 +92,11 @@ app.post('/webhook/', (req, res) => {
       const text = JSON.stringify(event.postback);
       const parsedTextObject = JSON.parse(text);
       if (parsedTextObject.payload === 'USER ASK TO CREATE A LOAN') {
-        // botMessages.selectCurrency(sender);
         settingAmountGBP = true;
         botMessages.askHowMuch(sender);
         continue;
       }
       if (parsedTextObject.payload === 'USER SELECTED GBP') {
-        // rfqObject.loanAmount = '£';
         botMessages.askHowMuch(sender);
         continue;
       }
