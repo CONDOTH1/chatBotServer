@@ -160,7 +160,7 @@ function getRFQS(sender) {
 
     const endOfRfqList = rfqsListTemplate.length <= 4;
     const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
-    const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
+    const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
     sendRequest(sender, messageData);
   });
 }
@@ -168,13 +168,14 @@ function getRFQS(sender) {
 function viewMoreRfqs(sender) {
   const endOfRfqList = rfqsListTemplate.length <= 4;
   const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
-  const messageData = helper.createRfqList(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
+  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
   sendRequest(sender, messageData);
 }
 
 function viewMoreQuotes(sender) {
-  const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
-  const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
+  const endOfQuoteList = quotesListTemplate.length <= 4;
+  const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
+  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
   sendRequest(sender, messageData);
 }
 
@@ -216,9 +217,9 @@ function getQuotesForRfq(sender, rfqNumber) {
       return result;
     }, []);
 
-    const endOfRfqList = quotesListTemplate.length <= 4;
-    const listGroupOfFour = endOfRfqList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
-    const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES', endOfRfqList);
+    const endOfQuoteList = quotesListTemplate.length <= 4;
+    const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
+    const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
 
     // const listGroupOfFour = quotesListTemplate.length > 4 ? quotesListTemplate.splice(0, 4) : quotesListTemplate;
     // const messageData = helper.createQuoteList(listGroupOfFour, 'VIEW MORE QUOTES');
