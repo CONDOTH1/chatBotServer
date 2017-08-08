@@ -1,3 +1,5 @@
+const ta = require('time-ago')();
+
 function createListTemplate(listGroupOfFour, payloadText, endOfList) {
   const finalListTemplate = {
     attachment: {
@@ -52,6 +54,15 @@ function returnButton(title, payload) {
   };
 }
 
+function quickRepliesButton(title, payload, imageUrl) {
+  return {
+    content_type: 'text',
+    title,
+    payload,
+    image_url: imageUrl || ''
+  };
+}
+
 function createQuoteList(resultsFromRfqEngine, rfqNumber) {
   const quotesListTemplate = resultsFromRfqEngine.quotes.reduce((result, quote) => {
     if (quote.status === 'declined') {
@@ -80,11 +91,28 @@ function createQuoteList(resultsFromRfqEngine, rfqNumber) {
   return quotesListTemplate;
 }
 
+function createRfqList(resultsFromRfqEngine) {
+  const rfqsListTemplate = JSON.parse(resultsFromRfqEngine).rfqs.map(rfq => ({
+    title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
+    subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
+    buttons: [
+      {
+        type: 'postback',
+        title: 'Check For Quotes',
+        payload: `USER ASKED TO SEE QUOTES:${rfq.rfqNumber}`
+      }
+    ]
+  }));
+  return rfqsListTemplate;
+}
+
 
 module.exports = {
   createListTemplate,
   acceptButton,
   rejectButton,
   returnButton,
-  createQuoteList
+  createQuoteList,
+  createRfqList,
+  quickRepliesButton
 };

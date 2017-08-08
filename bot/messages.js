@@ -1,7 +1,7 @@
 const request = require('request');
 const rp = require('request-promise');
 const helper = require('./../helper/helper.js');
-const ta = require('time-ago')();
+// const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
 let rfqsListTemplate;
@@ -87,33 +87,15 @@ function askHowMuch(sender) {
 }
 
 function selectTermPeriod(sender) {
-  const messageData = {
-    text: 'Please Select Term Period',
-    quick_replies: [
-      {
-        content_type: 'text',
-        title: 'Days',
-        payload: 'USER SELECTED DAYS'
-      },
-      {
-        content_type: 'text',
-        title: 'Months',
-        payload: 'USER SELECTED MONTHS'
-      },
-      {
-        content_type: 'text',
-        title: 'Years',
-        payload: 'USER SELECTED YEARS'
-      }
-    ]
-  };
+  const messageData = { text: 'Please Select Term Period', quick_replies: [] };
+  messageData.quick_replies.push(helper.quickRepliesButton('Days', 'USER SELECTED DAYS'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Months', 'USER SELECTED MONTHS'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Years', 'USER SELECTED MONTHS'));
   sendRequest(sender, messageData);
 }
 
 function askForHowLong(sender) {
-  const messageData = {
-    text: 'For How Long?'
-  };
+  const messageData = { text: 'For How Long?' };
   sendRequest(sender, messageData);
 }
 
@@ -128,9 +110,7 @@ function sendRFQ(sender, rfqObject) {
 
   return rp(params)
     .then(() => {
-      const messageData = {
-        text: 'Your loan request has been sent!'
-      };
+      const messageData = { text: 'Your loan request has been sent!' };
       sendRequest(sender, messageData);
       sendWelcomeMenu(sender, false);
     });
@@ -145,18 +125,7 @@ function getRFQS(sender) {
 
   return rp(params)
   .then((results) => {
-    rfqsListTemplate = JSON.parse(results).rfqs.map(rfq => ({
-      title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
-      subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
-      buttons: [
-        {
-          type: 'postback',
-          title: 'Check For Quotes',
-          payload: `USER ASKED TO SEE QUOTES:${rfq.rfqNumber}`
-        }
-      ]
-    }));
-
+    rfqsListTemplate = helper.createRfqList(results);
     const endOfRfqList = rfqsListTemplate.length <= 4;
     const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
     const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
@@ -189,30 +158,6 @@ function getQuotesForRfq(sender, rfqNumber) {
 
   return rp(params)
   .then((results) => {
-    // quotesListTemplate = results.quotes.reduce((result, quote) => {
-    //   if (quote.status === 'declined') {
-    //     return result;
-    //   }
-    //   result.push({
-    //     title: `${quote.quotePayload.providerName} can offer a loan of £${quote.quotePayload.borrowingAmount} at ${quote.quotePayload.representativeApr}%`,
-    //     subtitle: `Valid For ${Math.ceil((quote.timeToLive - new Date()) / 86400000)} Days`,
-    //     buttons: quote.status !== 'pending' ? [
-    //       {
-    //         type: 'postback',
-    //         title: `View: ${quote.status}ed`,
-    //         payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
-    //       }
-    //     ] : [
-    //       {
-    //         type: 'postback',
-    //         title: 'View',
-    //         payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
-    //       }
-    //     ]
-    //   });
-
-    //   return result;
-    // }, []);
     quotesListTemplate = helper.createQuoteList(results, rfqNumber);
     const endOfQuoteList = quotesListTemplate.length <= 4;
     const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
@@ -243,9 +188,12 @@ function acceptRejectQuote(sender, payloadArray) {
 
 function acceptRejectButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
   const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.acceptButton(`reject:${quoteNumber}`));
-  messageData.quick_replies.push(helper.rejectButton(`accept:${quoteNumber}`));
-  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
+  // messageData.quick_replies.push(helper.acceptButton(`reject:${quoteNumber}`));
+  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`, 'http://www.colorcombos.com/images/colors/000084.png'));
+  // messageData.quick_replies.push(helper.rejectButton(`accept:${quoteNumber}`));
+  // messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
   sendRequest(sender, messageData);
 }
 
