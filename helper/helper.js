@@ -48,7 +48,7 @@ function createQuoteList(resultsFromRfqEngine, rfqNumber) {
         {
           type: 'postback',
           title: `View: ${quote.status}ed`,
-          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          payload: `USER ASKED TO SEE A QUOTE:${/U+1D40F/}rovider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
         }
       ] : [
         {
@@ -90,7 +90,7 @@ function mainMenu() {
           {
             type: 'postback',
             title: 'Get A Loan',
-            payload: 'USER ASK TO CREATE A LOAN'
+            payload: 'USER ASKED TO CREATE A LOAN'
           },
           {
             type: 'postback',

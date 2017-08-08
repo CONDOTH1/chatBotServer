@@ -1,11 +1,12 @@
 const request = require('request');
 const rp = require('request-promise');
 const helper = require('./../helper/helper.js');
-// const ta = require('time-ago')();
 
 const token = process.env.PAGE_ACCESS_TOKEN;
 let rfqsListTemplate;
 let quotesListTemplate;
+
+// ################### SEND MESSAGE AS CHATBOT #########################
 
 function sendRequest(sender, messageData) {
   request({
@@ -25,16 +26,16 @@ function sendRequest(sender, messageData) {
   });
 }
 
+// ################ CONSTRUCT MESSAGES, LISTS AND BUTTONS ##################
+
 function sendTextMessage(sender, text) {
   const messageData = { text };
   sendRequest(sender, messageData);
 }
 
 function sendWelcomeMenu(sender, isFirstInteraction) {
-  console.log('+_+_+_+_+_+_+_+_+_+_+');
   if (isFirstInteraction) {
-    console.log('|||||||||||||||_____________|||||||||||||||||');
-    const text = 'Hi, welcome to the JigsawBot';
+    const text = "Hi, i'm Duchess, welcome, what can I do for you today?";
     sendRequest(sender, { text });
   }
   const messageData = helper.mainMenu();
@@ -52,7 +53,7 @@ function selectTermPeriod(sender) {
   const messageData = { text: 'Please Select Term Period', quick_replies: [] };
   messageData.quick_replies.push(helper.quickRepliesButton('Days', 'USER SELECTED DAYS'));
   messageData.quick_replies.push(helper.quickRepliesButton('Months', 'USER SELECTED MONTHS'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Years', 'USER SELECTED MONTHS'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Years', 'USER SELECTED YEARS'));
   sendRequest(sender, messageData);
 }
 
@@ -60,6 +61,37 @@ function askForHowLong(sender) {
   const messageData = { text: 'For How Long?' };
   sendRequest(sender, messageData);
 }
+
+function viewMoreRfqs(sender) {
+  const endOfRfqList = rfqsListTemplate.length <= 4;
+  const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
+  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
+  sendRequest(sender, messageData);
+}
+
+function viewMoreQuotes(sender) {
+  const endOfQuoteList = quotesListTemplate.length <= 4;
+  const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
+  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
+  sendRequest(sender, messageData);
+}
+
+
+function acceptRejectQuoteButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
+  const messageData = { text: quoteDetails, quick_replies: [] };
+  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`, 'http://www.colorcombos.com/images/colors/000084.png'));
+  sendRequest(sender, messageData);
+}
+
+function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
+  const messageData = { text: quoteDetails, quick_replies: [] };
+  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
+  sendRequest(sender, messageData);
+}
+
+// ################ API CALLS TO RFQENGING #########################
 
 function sendRFQ(sender, rfqObject) {
   const params = {
@@ -95,19 +127,6 @@ function getRFQS(sender) {
   });
 }
 
-function viewMoreRfqs(sender) {
-  const endOfRfqList = rfqsListTemplate.length <= 4;
-  const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
-  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
-  sendRequest(sender, messageData);
-}
-
-function viewMoreQuotes(sender) {
-  const endOfQuoteList = quotesListTemplate.length <= 4;
-  const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
-  const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
-  sendRequest(sender, messageData);
-}
 
 function getQuotesForRfq(sender, rfqNumber) {
   const params = {
@@ -148,19 +167,6 @@ function acceptRejectQuote(sender, payloadArray) {
     });
 }
 
-function acceptRejectButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
-  const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`, 'http://www.colorcombos.com/images/colors/000084.png'));
-  sendRequest(sender, messageData);
-}
-
-function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
-  const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
-  sendRequest(sender, messageData);
-}
 
 module.exports = {
   sendTextMessage,
@@ -171,7 +177,7 @@ module.exports = {
   getRFQS,
   getQuotesForRfq,
   acceptRejectQuote,
-  acceptRejectButtons,
+  acceptRejectQuoteButtons,
   returnToQuotesButton,
   viewMoreRfqs,
   viewMoreQuotes,
