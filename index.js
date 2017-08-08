@@ -113,7 +113,7 @@ app.post('/webhook/', (req, res) => {
         const quote = parsedTextObject.payload.split('QUOTE:')[1];
         const quoteDetails = quote.split('::');
         if (quoteDetails[2] === 'pending') {
-          botMessages.acceptRejectButtons(sender, quoteDetails[0], quoteDetails[1]);
+          botMessages.acceptRejectButtons(sender, quoteDetails[0], quoteDetails[1], quoteDetails[3]);
         } else {
           botMessages.returnToQuotesButton(sender, quoteDetails[0], quoteDetails[3]);
         }

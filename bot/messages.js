@@ -247,39 +247,18 @@ function acceptRejectQuote(sender, payloadArray) {
     });
 }
 
-function acceptRejectButtons(sender, quoteDetails, quoteNumber) {
-  const messageData = {
-    text: quoteDetails,
-    quick_replies: [
-      {
-        content_type: 'text',
-        title: 'Reject',
-        payload: `reject:${quoteNumber}`,
-        image_url: 'http://www.colorcombos.com/images/colors/FF0000.png'
-      },
-      {
-        content_type: 'text',
-        title: 'Accept',
-        payload: `accept:${quoteNumber}`,
-        image_url: 'http://www.colorcombos.com/images/colors/00FF00.png'
-      }
-    ]
-  };
+function acceptRejectButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
+  const messageData = { text: quoteDetails, quick_replies: [] };
+  messageData.quick_replies.push(helper.acceptButton(`reject:${quoteNumber}`));
+  messageData.quick_replies.push(helper.rejectButton(`accept:${quoteNumber}`));
+  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
   sendRequest(sender, messageData);
 }
 
 function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
-  const messageData = {
-    text: quoteDetails,
-    quick_replies: [
-      {
-        content_type: 'text',
-        title: 'Return To Quotes',
-        payload: `RETURN TO QUOTES:${rfqNumber}`,
-        image_url: 'http://www.colorcombos.com/images/colors/000084.png'
-      }
-    ]
-  };
+  // const messageData = helper.returnToQuotesButton(quoteDetails, rfqNumber);
+  const messageData = { text: quoteDetails, quick_replies: [] };
+  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
   sendRequest(sender, messageData);
 }
 
