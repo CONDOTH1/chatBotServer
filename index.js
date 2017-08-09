@@ -148,6 +148,11 @@ app.post('/webhook/', (req, res) => {
         continue;
       }
 
+      if (parsedTextObject.payload === 'USER ASKED TO RETURN TO MAIN MENU') {
+        botMessages.sendWelcomeMenu(sender, false);
+        continue;
+      }
+
       botMessages.sendTextMessage(sender, 'Sorry, I Didn\'t Recognise That Request');
       continue;
     }

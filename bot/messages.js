@@ -113,7 +113,7 @@ function sendRFQ(sender, rfqObject) {
 
 function getRFQS(sender) {
   const params = {
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
+    uri: `${baseUrl}/rfqs`,
     method: 'GET'
   };
   return rp(params)
@@ -123,6 +123,7 @@ function getRFQS(sender) {
     if (parsedResult.rfqs.length === 0) {
       messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
     } else {
+      console.log('_____+++++++++++++++______', parsedResult.rfqs.length);
       rfqsListTemplate = helper.createRfqList(results);
       const endOfRfqList = rfqsListTemplate.length <= 4;
       const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);

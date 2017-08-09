@@ -10,9 +10,9 @@ function createListTemplate(listGroupOfFour, payloadText, endOfList) {
         elements: listGroupOfFour,
         buttons: endOfList ? [
           {
-            title: 'Return To Loans',
+            title: 'Return To Main Menu',
             type: 'postback',
-            payload: 'USER ASKED TO SEE LOANS'
+            payload: 'USER ASKED TO RETURN TO MAIN MENU'
           }
         ] : [
           {
@@ -65,6 +65,7 @@ function createQuoteList(resultsFromRfqEngine, rfqNumber) {
 }
 
 function createRfqList(resultsFromRfqEngine) {
+  const onlyOneRfq = JSON.parse(resultsFromRfqEngine).rfqs.length === 1;
   const rfqsListTemplate = JSON.parse(resultsFromRfqEngine).rfqs.map(rfq => ({
     title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
     subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
@@ -72,10 +73,24 @@ function createRfqList(resultsFromRfqEngine) {
       {
         type: 'postback',
         title: 'Check For Quotes',
-        payload: `USER ASKED TO SEE QUOTES:${rfq.rfqNumber}`
+        payload: `USER ASKED TO SEE QUOTES:${rfq.rfqId}`
       }
     ]
   }));
+  if (onlyOneRfq) {
+    rfqsListTemplate.push({
+      title: 'No More RFQs To See',
+      subtitle: 'You Can Return Try Again',
+      buttons: [
+        {
+          type: 'postback',
+          title: 'Try Again',
+          payload: 'USER ASKED TO SEE LOANS'
+        }
+      ]
+    });
+  }
+  console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqsListTemplate);
   return rfqsListTemplate;
 }
 
