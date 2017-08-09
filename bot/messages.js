@@ -118,11 +118,8 @@ function getRFQS(sender) {
   };
   return rp(params)
   .then((results) => {
-    const parsedResult = JSON.parse(results);
-    console.log('+_+_+_+_+_+_+_+_', parsedResult);
-    console.log('____________++++++++++++', parsedResult.rfqs);
-    console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{', parsedResult.rfqs.length);
     let messageData;
+    const parsedResult = JSON.parse(results);
     if (parsedResult.rfqs.length === 0) {
       messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
     } else {

@@ -94,8 +94,13 @@ function mainMenu() {
           },
           {
             type: 'postback',
-            title: 'See Loan Requests',
+            title: 'See Loans',
             payload: 'USER ASKED TO SEE LOANS'
+          },
+          {
+            type: 'postback',
+            title: 'Delete Loans',
+            payload: 'USER ASKED TO DELETE A LOANS'
           }
         ]
       }
