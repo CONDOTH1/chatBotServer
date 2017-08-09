@@ -43,6 +43,7 @@ app.post('/webhook/', (req, res) => {
     const event = req.body.entry[0].messaging[i];
     const sender = event.sender.id;
     const welcomes = ['Hello', 'hello', 'Hi', 'hi', 'Sup', 'sup'];
+
     if (event.message && event.message.text) {
       const text = event.message.text;
 
@@ -52,9 +53,9 @@ app.post('/webhook/', (req, res) => {
       }
 
       if (!isNaN(parseInt(text, 10)) && settingAmountGBP) {
-        rfqObject.loanAmount = parseInt(text, 10);
         settingAmountGBP = false;
         settingTermPeriod = true;
+        rfqObject.loanAmount = parseInt(text, 10);
         botMessages.selectTermPeriod(sender);
         continue;
       }

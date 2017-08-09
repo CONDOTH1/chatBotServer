@@ -35,7 +35,7 @@ function sendTextMessage(sender, text) {
 
 function sendWelcomeMenu(sender, isFirstInteraction) {
   if (isFirstInteraction) {
-    const text = "Hi, i'm Duchess, welcome, what can I do for you today?";
+    const text = "Hi, I'm Spoke, welcome, what can I do for you today?";
     sendRequest(sender, { text });
   }
   const messageData = helper.mainMenu();
@@ -116,13 +116,21 @@ function getRFQS(sender) {
     uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
     method: 'GET'
   };
-
   return rp(params)
   .then((results) => {
-    rfqsListTemplate = helper.createRfqList(results);
-    const endOfRfqList = rfqsListTemplate.length <= 4;
-    const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
-    const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
+    const parsedResult = JSON.parse(results);
+    console.log('+_+_+_+_+_+_+_+_', parsedResult);
+    console.log('____________++++++++++++', parsedResult.rfqs);
+    console.log('}{}{}{}{}{}{}{}{}{}{}{}{}{', parsedResult.rfqs.length);
+    let messageData;
+    if (parsedResult.rfqs.length === 0) {
+      messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
+    } else {
+      rfqsListTemplate = helper.createRfqList(results);
+      const endOfRfqList = rfqsListTemplate.length <= 4;
+      const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
+      messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
+    }
     sendRequest(sender, messageData);
   });
 }
@@ -139,11 +147,15 @@ function getQuotesForRfq(sender, rfqNumber) {
 
   return rp(params)
   .then((results) => {
-    quotesListTemplate = helper.createQuoteList(results, rfqNumber);
-    const endOfQuoteList = quotesListTemplate.length <= 4;
-    const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
-    const messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
-
+    let messageData;
+    if (results.quotes.length === 0) {
+      messageData = { text: 'Nothing To See Yet, Waiting On Providers' };
+    } else {
+      quotesListTemplate = helper.createQuoteList(results, rfqNumber);
+      const endOfQuoteList = quotesListTemplate.length <= 4;
+      const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
+      messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
+    }
     sendRequest(sender, messageData);
   });
 }
