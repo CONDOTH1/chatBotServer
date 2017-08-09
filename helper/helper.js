@@ -106,6 +106,35 @@ function createRfqList(resultsFromRfqEngine) {
   return rfqsListTemplate;
 }
 
+function createRfqListForDeletion(resultsFromRfqEngine) {
+  const onlyOneRfq = JSON.parse(resultsFromRfqEngine).rfqs.length === 1;
+  const rfqsListTemplate = JSON.parse(resultsFromRfqEngine).rfqs.map(rfq => ({
+    title: `Your request for £${rfq.payload.loanAmount} over ${rfq.payload.loanTerm} ${rfq.payload.termPeriod}`,
+    subtitle: `Created ${ta.ago(rfq.createdTimeStamp)}`,
+    buttons: [
+      {
+        type: 'postback',
+        title: 'Delete Loan Request',
+        payload: `USER ASKED TO DELETE RFQ:${rfq.rfqId}`
+      }
+    ]
+  }));
+  if (onlyOneRfq) {
+    rfqsListTemplate.push({
+      title: 'No More Loan Requests',
+      subtitle: 'You Can Check Again',
+      buttons: [
+        {
+          type: 'postback',
+          title: 'Try Again',
+          payload: 'USER ASKED TO SEE LOANS'
+        }
+      ]
+    });
+  }
+  return rfqsListTemplate;
+}
+
 function mainMenu() {
   return {
     attachment: {
@@ -140,6 +169,7 @@ module.exports = {
   createListTemplate,
   createQuoteList,
   createRfqList,
+  createRfqListForDeletion,
   quickRepliesButton,
   mainMenu
 };

@@ -111,7 +111,7 @@ function sendRFQ(sender, rfqObject) {
     });
 }
 
-function getRFQS(sender) {
+function getRFQS(sender, forDeletion) {
   const params = {
     uri: `${baseUrl}/rfqs`,
     method: 'GET'
@@ -123,7 +123,7 @@ function getRFQS(sender) {
     if (parsedResult.rfqs.length === 0) {
       messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
     } else {
-      rfqsListTemplate = helper.createRfqList(results);
+      rfqsListTemplate = forDeletion ? helper.createRfqListForDeletion(results) : helper.createRfqList(results);
       const endOfRfqList = rfqsListTemplate.length <= 4;
       const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
       messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
@@ -173,6 +173,21 @@ function acceptRejectQuote(sender, status, quoteId, rfqId) {
     });
 }
 
+function deleteRfq(sender, rfqId) {
+  const params = {
+    uri: `${baseUrl}/rfqs/${rfqId}`,
+    method: 'DELETE'
+  };
+
+  return rp(params)
+    .then(() => {
+      const messageData = {
+        text: 'You Have Delete Your Loan Request'
+      };
+      sendRequest(sender, messageData);
+      sendWelcomeMenu(sender, false);
+    });
+}
 
 module.exports = {
   sendTextMessage,
@@ -187,5 +202,6 @@ module.exports = {
   returnToQuotesButton,
   viewMoreRfqs,
   viewMoreQuotes,
-  selectTermPeriod
+  selectTermPeriod,
+  deleteRfq
 };

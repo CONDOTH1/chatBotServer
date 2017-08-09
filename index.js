@@ -116,7 +116,18 @@ app.post('/webhook/', (req, res) => {
       }
 
       if (parsedTextObject.payload === 'USER ASKED TO SEE LOANS') {
-        botMessages.getRFQS(sender);
+        botMessages.getRFQS(sender, false);
+        continue;
+      }
+
+      if (parsedTextObject.payload === 'USER ASKED TO DELETE A LOANS') {
+        botMessages.getRFQS(sender, true);
+        continue;
+      }
+
+      if (parsedTextObject.payload.includes('USER ASKED TO DELETE RFQ:')) {
+        const rfqId = parsedTextObject.payload.split('RFQ:')[1];
+        botMessages.deleteRfq(sender, rfqId);
         continue;
       }
 
