@@ -129,6 +129,11 @@ function getRFQS(sender, forDeletion) {
       messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE RFQS', endOfRfqList);
     }
     sendRequest(sender, messageData);
+  })
+  .catch((error) => {
+    console.log('error::::::::::::::::::::::::: ', error);
+    const messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
+    sendRequest(sender, messageData);
   });
 }
 
