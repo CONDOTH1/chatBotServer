@@ -2,6 +2,8 @@ const request = require('request');
 const rp = require('request-promise');
 const helper = require('./../helper/helper.js');
 
+const baseUrl = 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing';
+
 const token = process.env.PAGE_ACCESS_TOKEN;
 let rfqsListTemplate;
 let quotesListTemplate;
@@ -95,8 +97,7 @@ function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
 
 function sendRFQ(sender, rfqObject) {
   const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
+    uri: `${baseUrl}/rfqs`,
     method: 'POST',
     body: rfqObject,
     json: true
@@ -112,7 +113,6 @@ function sendRFQ(sender, rfqObject) {
 
 function getRFQS(sender) {
   const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
     uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs',
     method: 'GET'
   };
@@ -136,10 +136,8 @@ function getRFQS(sender) {
 function getQuotesForRfq(sender, rfqNumber) {
   const params = {
     headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/quotes',
-    method: 'POST',
-    body: { rfqNumber },
-    json: true
+    uri: `https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs/${rfqNumber}/quotes`,
+    method: 'GET'
   };
 
   return rp(params)
@@ -157,19 +155,19 @@ function getQuotesForRfq(sender, rfqNumber) {
   });
 }
 
-function acceptRejectQuote(sender, payloadArray) {
+function acceptRejectQuote(sender, status, rfqId, quoteId) {
   const params = {
     headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: 'https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/quotes',
-    method: 'PUT',
-    body: { quoteNumber: payloadArray[1], status: payloadArray[0] },
+    uri: `https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs/${rfqId}/quotes/${quoteId}`,
+    method: 'PATCH',
+    body: { status },
     json: true
   };
 
   return rp(params)
     .then(() => {
       const messageData = {
-        text: `You have ${payloadArray[0]}ed the offer!`
+        text: `You have ${status}ed the offer!`
       };
       sendRequest(sender, messageData);
       sendWelcomeMenu(sender, false);
