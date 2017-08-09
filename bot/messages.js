@@ -157,6 +157,11 @@ function getQuotesForRfq(sender, rfqId) {
       messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
     }
     sendRequest(sender, messageData);
+  })
+  .catch((error) => {
+    console.log('error::::::::::::::::::::::::: ', error);
+    const messageData = { text: 'Nothing To See Yet, Waiting On Providers' };
+    sendRequest(sender, messageData);
   });
 }
 

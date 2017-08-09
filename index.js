@@ -69,7 +69,6 @@ app.post('/webhook/', (req, res) => {
 
       if (text.includes('Accept') || text.includes('Reject')) {
         const details = event.message.quick_reply.payload.split(':');
-        console.log('details::::::::::::::::::::::::::::::: ', details);
         const status = details[0];
         const quoteId = details[1];
         const rfqId = details[2];
