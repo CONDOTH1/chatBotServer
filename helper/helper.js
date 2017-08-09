@@ -36,8 +36,9 @@ function quickRepliesButton(title, payload, imageUrl) {
   };
 }
 
-function createQuoteList(resultsFromRfqEngine, rfqNumber) {
-  const quotesListTemplate = resultsFromRfqEngine.quotes.reduce((result, quote) => {
+function createQuoteList(resultsFromRfqEngine, rfqId) {
+  const onlyOneQuote = JSON.parse(resultsFromRfqEngine).quotes.length === 1;
+  const quotesListTemplate = JSON.parse(resultsFromRfqEngine).quotes.reduce((result, quote) => {
     if (quote.status === 'declined') {
       return result;
     }
@@ -48,19 +49,31 @@ function createQuoteList(resultsFromRfqEngine, rfqNumber) {
         {
           type: 'postback',
           title: `View: ${quote.status}ed`,
-          payload: `USER ASKED TO SEE A QUOTE:${/U+1D40F/}rovider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteId}::${quote.status}::${rfqId}`
         }
       ] : [
         {
           type: 'postback',
           title: 'View',
-          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteNumber}::${quote.status}::${rfqNumber}`
+          payload: `USER ASKED TO SEE A QUOTE:Provider:${quote.quotePayload.providerName}\n Amount: £${quote.quotePayload.borrowingAmount}\n For: ${quote.quotePayload.loanTerm} ${quote.quotePayload.loanPeriod}\n Repayment: £${quote.quotePayload.repaymentAmountPerSchedule} ${quote.quotePayload.repaymentSchedule}\n Total Repayment: £${quote.quotePayload.repaymentAmountTotal}\n APR: ${quote.quotePayload.representativeApr}%\n Status: ${quote.status}::${quote.quoteId}::${quote.status}::${rfqId}`
         }
       ]
     });
-
     return result;
   }, []);
+  if (onlyOneQuote) {
+    quotesListTemplate.push({
+      title: 'No More Quotes',
+      subtitle: 'You Can Check Again',
+      buttons: [
+        {
+          type: 'postback',
+          title: 'Try Again',
+          payload: `USER ASKED TO SEE QUOTES:${rfqId}`
+        }
+      ]
+    });
+  }
   return quotesListTemplate;
 }
 
@@ -79,8 +92,8 @@ function createRfqList(resultsFromRfqEngine) {
   }));
   if (onlyOneRfq) {
     rfqsListTemplate.push({
-      title: 'No More RFQs To See',
-      subtitle: 'You Can Return Try Again',
+      title: 'No More Loan Requests',
+      subtitle: 'You Can Check Again',
       buttons: [
         {
           type: 'postback',
@@ -90,7 +103,6 @@ function createRfqList(resultsFromRfqEngine) {
       ]
     });
   }
-  console.log('+_+_+_+_+_+_+_+_+_+_+_', rfqsListTemplate);
   return rfqsListTemplate;
 }
 

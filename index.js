@@ -68,14 +68,14 @@ app.post('/webhook/', (req, res) => {
       }
 
       if (text.includes('Accept') || text.includes('Reject')) {
-        const quoteNumber = event.message.quick_reply.payload.split(':');
-        botMessages.acceptRejectQuote(sender, quoteNumber);
+        const quoteId = event.message.quick_reply.payload.split(':');
+        botMessages.acceptRejectQuote(sender, quoteId);
         continue;
       }
 
       if (text.includes('Return To Quotes')) {
-        const rfqNumber = event.message.quick_reply.payload.split(':')[1];
-        botMessages.getQuotesForRfq(sender, rfqNumber);
+        const rfqId = event.message.quick_reply.payload.split(':')[1];
+        botMessages.getQuotesForRfq(sender, rfqId);
         continue;
       }
 
@@ -117,8 +117,8 @@ app.post('/webhook/', (req, res) => {
       }
 
       if (parsedTextObject.payload.includes('USER ASKED TO SEE QUOTES:')) {
-        const rfqNumber = parsedTextObject.payload.split('QUOTES:')[1];
-        botMessages.getQuotesForRfq(sender, rfqNumber);
+        const rfqId = parsedTextObject.payload.split('QUOTES:')[1];
+        botMessages.getQuotesForRfq(sender, rfqId);
         continue;
       }
 
@@ -126,14 +126,14 @@ app.post('/webhook/', (req, res) => {
         const quote = parsedTextObject.payload.split('QUOTE:')[1];
         const detailsArray = quote.split('::');
         const quoteDetails = detailsArray[0];
-        const quoteNumber = detailsArray[1];
+        const quoteId = detailsArray[1];
         const status = detailsArray[2];
-        const rfqNumber = detailsArray[3];
+        const rfqId = detailsArray[3];
 
         if (status === 'pending') {
-          botMessages.acceptRejectQuoteButtons(sender, quoteDetails, quoteNumber, rfqNumber);
+          botMessages.acceptRejectQuoteButtons(sender, quoteDetails, quoteId, rfqId);
         } else {
-          botMessages.returnToQuotesButton(sender, quoteDetails, rfqNumber);
+          botMessages.returnToQuotesButton(sender, quoteDetails, rfqId);
         }
         continue;
       }

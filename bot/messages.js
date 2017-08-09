@@ -79,17 +79,17 @@ function viewMoreQuotes(sender) {
 }
 
 
-function acceptRejectQuoteButtons(sender, quoteDetails, quoteNumber, rfqNumber) {
+function acceptRejectQuoteButtons(sender, quoteDetails, quoteId, rfqId) {
   const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteNumber}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`, 'http://www.colorcombos.com/images/colors/000084.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteId}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteId}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqId}`, 'http://www.colorcombos.com/images/colors/000084.png'));
   sendRequest(sender, messageData);
 }
 
-function returnToQuotesButton(sender, quoteDetails, rfqNumber) {
+function returnToQuotesButton(sender, quoteDetails, rfqId) {
   const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqNumber}`));
+  messageData.quick_replies.push(helper.returnButton('Return To Quotes', `RETURN TO QUOTES:${rfqId}`));
   sendRequest(sender, messageData);
 }
 
@@ -123,7 +123,6 @@ function getRFQS(sender) {
     if (parsedResult.rfqs.length === 0) {
       messageData = { text: 'You Have Not Submitted Any Loan Requests Yet' };
     } else {
-      console.log('_____+++++++++++++++______', parsedResult.rfqs.length);
       rfqsListTemplate = helper.createRfqList(results);
       const endOfRfqList = rfqsListTemplate.length <= 4;
       const listGroupOfFour = endOfRfqList ? rfqsListTemplate : rfqsListTemplate.splice(0, 4);
@@ -134,20 +133,20 @@ function getRFQS(sender) {
 }
 
 
-function getQuotesForRfq(sender, rfqNumber) {
+function getQuotesForRfq(sender, rfqId) {
   const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: `https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs/${rfqNumber}/quotes`,
+    uri: `${baseUrl}/rfqs/${rfqId}/quotes`,
     method: 'GET'
   };
 
   return rp(params)
   .then((results) => {
     let messageData;
-    if (results.quotes.length === 0) {
+    const parsedResult = JSON.parse(results);
+    if (parsedResult.quotes.length === 0) {
       messageData = { text: 'Nothing To See Yet, Waiting On Providers' };
     } else {
-      quotesListTemplate = helper.createQuoteList(results, rfqNumber);
+      quotesListTemplate = helper.createQuoteList(results, rfqId);
       const endOfQuoteList = quotesListTemplate.length <= 4;
       const listGroupOfFour = endOfQuoteList ? quotesListTemplate : quotesListTemplate.splice(0, 4);
       messageData = helper.createListTemplate(listGroupOfFour, 'VIEW MORE QUOTES', endOfQuoteList);
