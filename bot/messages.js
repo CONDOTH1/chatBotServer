@@ -81,8 +81,8 @@ function viewMoreQuotes(sender) {
 
 function acceptRejectQuoteButtons(sender, quoteDetails, quoteId, rfqId) {
   const messageData = { text: quoteDetails, quick_replies: [] };
-  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteId}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
-  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteId}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Reject', `reject:${quoteId}:${rfqId}`, 'http://www.colorcombos.com/images/colors/FF0000.png'));
+  messageData.quick_replies.push(helper.quickRepliesButton('Accept', `accept:${quoteId}:${rfqId}`, 'http://www.colorcombos.com/images/colors/00FF00.png'));
   messageData.quick_replies.push(helper.quickRepliesButton('Return To Quotes', `RETURN TO QUOTES:${rfqId}`, 'http://www.colorcombos.com/images/colors/000084.png'));
   sendRequest(sender, messageData);
 }
@@ -155,10 +155,9 @@ function getQuotesForRfq(sender, rfqId) {
   });
 }
 
-function acceptRejectQuote(sender, status, rfqId, quoteId) {
+function acceptRejectQuote(sender, status, quoteId, rfqId) {
   const params = {
-    headers: { 'x-spoke-client': process.env.CLIENT_TOKEN },
-    uri: `https://zqi6r2rf99.execute-api.eu-west-1.amazonaws.com/testing/rfqs/${rfqId}/quotes/${quoteId}`,
+    uri: `${baseUrl}/rfqs/${rfqId}/quotes/${quoteId}`,
     method: 'PATCH',
     body: { status },
     json: true

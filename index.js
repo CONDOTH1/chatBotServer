@@ -68,8 +68,12 @@ app.post('/webhook/', (req, res) => {
       }
 
       if (text.includes('Accept') || text.includes('Reject')) {
-        const quoteId = event.message.quick_reply.payload.split(':');
-        botMessages.acceptRejectQuote(sender, quoteId);
+        const details = event.message.quick_reply.payload.split(':');
+        console.log('details::::::::::::::::::::::::::::::: ', details);
+        const status = details[0];
+        const quoteId = details[1];
+        const rfqId = details[2];
+        botMessages.acceptRejectQuote(sender, status, quoteId, rfqId);
         continue;
       }
 
