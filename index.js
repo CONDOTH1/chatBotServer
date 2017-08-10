@@ -17,7 +17,8 @@ app.use(bodyParser.json());
 
 // Index route
 app.get('/', (req, res) => {
-  res.send(res);
+  res.send('up and running');
+  // res.send(res);
 });
 
 // for Facebook verification
